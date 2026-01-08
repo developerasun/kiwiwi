@@ -42,3 +42,7 @@ run test.
 ```sh
 zig build test --verbose
 ```
+
+## reference
+
+- [zig.guide: Formatting specifiers](https://zig.guide/standard-library/formatting-specifiers)
