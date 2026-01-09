@@ -3,6 +3,8 @@
 
 # kiwiwi
 
+The missing scaffold tool for [`Gin`](https://github.com/gin-gonic/gin) web framework.
+
 ## Table of contents
 
 - [setup](#setup)
@@ -78,23 +80,21 @@ run `asdf which zig`, `asdf which zls` commands and copy the path for target lan
 
 ## commands
 
-run application.
+a bit of helper commands to build and test zig application.
 
 ```sh
-# run a single file
-zig run src/main.zig
-
-# run all
-zig build run
-```
-
-run test.
-
-```sh
-zig build test --verbose
+# build and run whole application
+  ./dev.run.sh         
+  
+  # build and run one target file
+  ./dev.run.sh --build-one [filename] 
+  
+  # run test suites
+  ./dev.run.sh --test
 ```
 
 ## reference
 
 - [zig.guide: Formatting specifiers](https://zig.guide/standard-library/formatting-specifiers)
 - [zig.guide: Running tests](https://zig.guide/getting-started/running-tests)
+- [github: gin-scaffold](https://github.com/dcu/gin-scaffold)
