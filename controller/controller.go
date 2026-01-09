@@ -1,1 +1,5 @@
-package controller func myController() error { return nil }
+package controller
+
+func myController() error {
+	return nil
+}

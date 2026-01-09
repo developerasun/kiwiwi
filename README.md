@@ -98,3 +98,4 @@ a bit of helper commands to build and test zig application.
 - [zig.guide: Formatting specifiers](https://zig.guide/standard-library/formatting-specifiers)
 - [zig.guide: Running tests](https://zig.guide/getting-started/running-tests)
 - [github: gin-scaffold](https://github.com/dcu/gin-scaffold)
+- [zed docs: language support: Go](https://zed.dev/docs/languages/go#go)

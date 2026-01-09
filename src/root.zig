@@ -50,7 +50,7 @@ test "Should create a directory and a file" {
 
     // TODO keep original file content, append new content to the file
     try directory.writeFile(.{
-        .data = "package controller func myController() error { return nil }",
+        .data = "package controller \n\n func myController() error { return nil }",
         .sub_path = "controller.go", // @dev add comma at the end to change line.
     });
     std.debug.print("file create done.\n", .{});
