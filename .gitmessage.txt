@@ -1,0 +1,23 @@
+#feat:
+#bug:
+#doc:
+#test:
+#build:
+#type:
+#refactor:
+#style:
+
+# =====================================
+# add . to filename when register this template to your IDE.
+# ENH: Enhancement, new functionality
+# BUG: Bug fix
+# DOC: Additions/updates to documentation
+# TST: Additions/updates to tests
+# BLD: Updates to the build process/scripts
+# PERF: Performance improvement
+# TYP: Type annotations
+# CLN: Code cleanup
+# run this command in terminal: git config --local commit.template .gitmessage.txt
+# run also this command in terminal: git config --global push.autoSetupRemote true
+# =====================================
+# find more details here: https://pandas.pydata.org/docs/development/contributing.html#committing-your-code
