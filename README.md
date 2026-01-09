@@ -1,6 +1,17 @@
+![GitHub last commit](https://img.shields.io/github/last-commit/developerasun/kiwiwi)
+![Static Badge](https://img.shields.io/badge/Is_Jake_Working_On_This_Now-Yes-green)
+
 # kiwiwi
 
+## Table of contents
+
+- [setup](#setup)
+  - [package manager](#package-manager)
+  - [language server](#language-server)
+
 ## setup
+
+### package manager
 
 install `asdf` package manager first. 
 
@@ -25,6 +36,46 @@ zig version
 zls version
 ```
 
+### language server
+
+Depending on your editor, language server `zls` will be set slightly different. On zed, install `zig` extension first. 
+And create `.zed` directory with `settings.json` file.
+
+run `asdf which zls` command and copy the path for target language server.
+
+```json
+// .zed/settings.json
+{
+  "lsp": {
+    "zls": {
+      "binary": {
+        "path": "asdf which zls result here",
+        "arguments": []
+      }
+    }
+  },
+  "languages": {
+    "Zig": {
+      "language_servers": ["zls"],
+      "format_on_save": "on"
+    }
+  }
+}
+```
+
+On VS Code, install official `Zig Language` extension. and then create `.vscode` directory with `settings.json` file.
+run `asdf which zig`, `asdf which zls` commands and copy the path for target language server.
+
+```json
+// .vscode/settings.json
+{
+  "zig.zls.enabled": "on",
+  "zig.path": "asdf which zig result here",
+  "zig.zls.path": "asdf which zls result here",
+  "zig.zls.enableSnippets": true
+}
+```
+
 ## commands
 
 run application.
@@ -46,3 +97,4 @@ zig build test --verbose
 ## reference
 
 - [zig.guide: Formatting specifiers](https://zig.guide/standard-library/formatting-specifiers)
+- [zig.guide: Running tests](https://zig.guide/getting-started/running-tests)
