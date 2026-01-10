@@ -7,9 +7,37 @@ The missing scaffold tool for [`Gin`](https://github.com/gin-gonic/gin) web fram
 
 ## Table of contents
 
+- [getting started](#getting-started)
 - [setup](#setup)
   - [package manager](#package-manager)
   - [language server](#language-server)
+- [commands](#commands)
+- [reference](#reference)
+
+## getting started
+
+TBD
+
+run `./dev.run.sh --co Cat`
+
+```sh
+▶ Kiwiwi app start
+▶ Build and run with forwarded arguments
+project kiwiwi with version 0.1
+firstArg: Cat
+template: package controller
+
+import (
+	"github.com/gin-gonic/gin"
+)
+
+@kiwiwi should escape double `{ }` for zig formatting
+func CatController(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{
+		Message: "ok",
+	})
+}
+```
 
 ## setup
 
@@ -99,3 +127,46 @@ a bit of helper commands to build and test zig application.
 - [zig.guide: Running tests](https://zig.guide/getting-started/running-tests)
 - [github: gin-scaffold](https://github.com/dcu/gin-scaffold)
 - [zed docs: language support: Go](https://zed.dev/docs/languages/go#go)
+
+nestjs/cli
+
+```sh
+pnpm nest --help
+
+Usage: nest <command> [options]
+
+Options:
+  -v, --version                                   Output the current version.
+  -h, --help                                      Output usage information.
+
+Commands:
+  new|n [options] [name]                          Generate Nest application.
+  build [options] [app]                           Build Nest application.
+  start [options] [app]                           Run Nest application.
+  info|i                                          Display Nest project details.
+  add [options] <library>                         Adds support for an external library to your project.
+  generate|g [options] <schematic> [name] [path]  Generate a Nest element.
+    Schematics available on @nestjs/schematics collection:
+      ┌───────────────┬─────────────┬──────────────────────────────────────────────┐
+      │ name          │ alias       │ description                                  │
+      │ application   │ application │ Generate a new application workspace         │
+      │ class         │ cl          │ Generate a new class                         │
+      │ configuration │ config      │ Generate a CLI configuration file            │
+      │ controller    │ co          │ Generate a controller declaration            │
+      │ decorator     │ d           │ Generate a custom decorator                  │
+      │ filter        │ f           │ Generate a filter declaration                │
+      │ gateway       │ ga          │ Generate a gateway declaration               │
+      │ guard         │ gu          │ Generate a guard declaration                 │
+      │ interceptor   │ itc         │ Generate an interceptor declaration          │
+      │ interface     │ itf         │ Generate an interface                        │
+      │ library       │ lib         │ Generate a new library within a monorepo     │
+      │ middleware    │ mi          │ Generate a middleware declaration            │
+      │ module        │ mo          │ Generate a module declaration                │
+      │ pipe          │ pi          │ Generate a pipe declaration                  │
+      │ provider      │ pr          │ Generate a provider declaration              │
+      │ resolver      │ r           │ Generate a GraphQL resolver declaration      │
+      │ resource      │ res         │ Generate a new CRUD resource                 │
+      │ service       │ s           │ Generate a service declaration               │
+      │ sub-app       │ app         │ Generate a new application within a monorepo │
+      └───────────────┴─────────────┴──────────────────────────────────────────────┘
+```
