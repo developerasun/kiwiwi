@@ -1,0 +1,21 @@
+name: auto-release
+
+on:
+  push:
+    tags:
+      - "sprint-*"
+      - "app-*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ncipollo/release-action@v1
+        with:
+          draft: false
+          prerelease: false
+          generateReleaseNotes: true
+          makeLatest: true

@@ -1,0 +1,25 @@
+# .github/release.yml
+changelog:
+  exclude:
+    labels:
+      - stale
+      - dependencies
+  categories:
+    - title: 🏃 Running this week sprint
+      labels:
+        - sync
+    - title: 🎉 Exciting New Features
+      labels:
+        - enhancement
+    - title: 🐛 Bug found 
+      labels:
+        - bug
+    - title: 📰 Archiving thoughts and researches
+      labels:
+        - documentation
+    - title: 🔨 Improving previous codes written
+      labels:
+        - refactor
+    - title: 🧰 Other Changes
+      labels:
+        - "*"

@@ -1,0 +1,26 @@
+name: Refactoring Request
+description: File a code change request
+title: "[refactor]"
+labels: ["refactor"]
+assignees:
+  - developerasun
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hexbook refactoring request
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe what changes are needed
+      placeholder: Enter your description here
+      value: "There might be a better way to do this "
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: bash

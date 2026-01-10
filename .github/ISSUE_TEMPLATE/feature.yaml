@@ -1,0 +1,37 @@
+name: Feature Requirements
+description: List up feature specs
+title: "[feature]"
+labels: ["enhancement"]
+assignees:
+  - developerasun
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hexbook Feature Requirement
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What to code?
+      description: Describe what is expected for the feature
+      placeholder: Enter your description here
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: link
+    attributes:
+      label: Reference?
+      description: Leave source links during coding this feature
+      placeholder: Enter your links here
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: false
