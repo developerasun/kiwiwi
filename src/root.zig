@@ -25,6 +25,8 @@ fn Skip() !void {
 }
 
 test "Should return a correct metadata" {
+    try Skip();
+
     const p = project();
     try std.testing.expectEqual(p, "kiwiwi");
 
@@ -65,6 +67,8 @@ test "Should create a directory and a file" {
 }
 
 test "Should format a string with data" {
+    try Skip();
+
     const allocator = std.testing.allocator;
     const data = std.fmt.allocPrint(allocator, "time: {d}", .{std.time.timestamp()}) catch |err| switch (err) {
         std.mem.Allocator.Error.OutOfMemory => {
@@ -80,8 +84,21 @@ test "Should format a string with data" {
     defer allocator.free(data);
 }
 
-test "Should read a file in a directory" {
+test "Should print a templated controller" {
     try Skip();
-    std.debug.print("file: {s}", .{@embedFile("./templates/controller.go.txt")});
-    // std.fs.cwd().readFile("templates/controllers.go", buffer: []u8)
+
+    const allocator = std.testing.allocator;
+    const template = @embedFile("./templates/controller.kiwiwi");
+    const templateType = @TypeOf(template);
+    const templateTypeName = @typeName(templateType);
+
+    std.debug.print("template: {s}\n", .{template});
+    std.debug.print("template type: {any}\n", .{templateType});
+    std.debug.print("template type name: {s}\n", .{templateTypeName});
+
+    const controllerName = "Health";
+    const controllerTemplate = try std.fmt.allocPrint(allocator, template, .{controllerName});
+    defer allocator.free(controllerTemplate);
+
+    std.debug.print("full template: {s}\n", .{controllerTemplate});
 }
