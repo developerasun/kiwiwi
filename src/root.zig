@@ -102,3 +102,24 @@ test "Should print a templated controller" {
 
     std.debug.print("full template: {s}\n", .{controllerTemplate});
 }
+
+test "Should allocate a memory for an array list" {
+    // @dev use stack memory for fixed size array. no heap allocator should be used.
+    var buffer: [5]u8 = .{ 1, 2, 3, 4, 5 };
+    var bb = std.ArrayList(u8).initBuffer(&buffer); // relatively faster
+
+    bb.items.len = 5;
+    std.debug.print("bb [0]: {d}\n", .{bb.items[0]});
+
+    // @dev use heap memory for dynamic size arrary. gpa must be var as it is mutable
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    var list: std.ArrayList(u8) = .empty; // relatively slower
+    defer list.deinit(allocator);
+
+    try list.append(allocator, 10);
+    std.debug.print("last element: {d}", .{list.getLast()});
+    try expect(list.getLast() == 10);
+}
