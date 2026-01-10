@@ -16,7 +16,41 @@ The missing scaffold tool for [`Gin`](https://github.com/gin-gonic/gin) web fram
 
 ## getting started
 
-TBD
+build binary.
+
+```sh
+zig build
+```
+
+elevate a privilege.
+
+```sh
+cd zig-out/bin
+sudo chmod +x ./kiwiwi
+```
+
+run the binary.
+
+```sh
+./kiwiwi Cat
+
+project kiwiwi with version 0.1
+firstArg: Cat
+template: package controller
+
+import (
+	"github.com/gin-gonic/gin"
+)
+
+@kiwiwi should escape double `{ }` for zig formatting
+func CatController(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{
+		Message: "ok",
+	})
+}
+```
+
+In a local testing, 
 
 run `./dev.run.sh --co Cat`
 
