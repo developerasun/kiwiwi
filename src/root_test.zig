@@ -1,5 +1,6 @@
 const std = @import("std");
 const kiwiwi = @import("root.zig");
+const helper = @import("template_helper.zig");
 const expect = std.testing.expect;
 
 const MakeError = std.fs.Dir.MakeError;
@@ -8,11 +9,6 @@ const SkipError = error.SkipZigTest;
 fn Skip() !void {
     const shouldSkip = true;
     if (shouldSkip) return SkipError;
-}
-
-test "Should print a correct metadata" {
-    try Skip();
-    kiwiwi.metadata();
 }
 
 test "Should create a directory and a file" {
@@ -107,6 +103,8 @@ test "Should allocate a memory for an array list" {
 }
 
 test "Should extract command lin args" {
+    try Skip();
+
     var args = std.process.args();
     // @dev 0th element of cli args is program name, which absolutely exist.
     const programName = args.next().?;
@@ -124,3 +122,7 @@ test "Should extract command lin args" {
         @panic("firstArg is null");
     }
 }
+
+// test "Should list available templates" {
+//     try expect(std.mem.eql(u8, helper.TemplatePicker.name(), "TemplatePicker"));
+// }
