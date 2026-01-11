@@ -4,9 +4,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-@kiwiwi should escape double `{{ }}` for zig formatting
-func {s}Controller(ctx *gin.Context) {{
-	ctx.JSON(http.StatusOK, gin.H{{
-		Message: "ok",
-	}})
+type {s}Controller struct {
+  {s}Service I{s}Service
+}
+type I{s}Controller interface {}
+
+func New{s}Controller({s}Service I{s}Service) I{s}Controller {{
+	return &{s}Controller{
+	   {s}Service: {s}Service,
+	}
 }}

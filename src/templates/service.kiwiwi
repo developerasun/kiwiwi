@@ -1,0 +1,8 @@
+package service
+
+type {s}Service struct {}
+type I{s}Service interface {}
+
+func New{s}Service() I{s}Service {{
+	return &{s}Service{ }
+}}
