@@ -10,7 +10,7 @@ listAvailableFlags() {
   echo "  ./dev.run.sh         # build and run whole application"
   echo "  ./dev.run.sh --build-one [FILENAME]  # build and run one target file"
   echo "  ./dev.run.sh --test   # run test suites"
-  echo "  ./dev.run.sh --co [ARGS...]   # generate a named controller"
+  echo "  ./dev.run.sh --cli [ARGS...]   # interact kiwiwi as a cli"
 }
 
 echo "▶ Kiwiwi app start"
@@ -30,7 +30,7 @@ case "$FLAG" in
     echo "▶ Build and run one target file"
     zig run $FILENAME
     ;;
-  --co)
+  --cli)
     shift # discard the flag
     echo "▶ Build and run with forwarded arguments"
     zig build run -- "$@"

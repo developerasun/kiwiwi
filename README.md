@@ -15,14 +15,21 @@ The missing scaffold tool for [`Gin`](https://github.com/gin-gonic/gin) web fram
 
 # Table of contents
 
+- [introduction](#introduction)
+- [installation](#installation)
 - [getting started](#getting-started)
 - [setup](#setup)
   - [package manager](#package-manager)
   - [language server](#language-server)
+  - [testing](#testing)
 - [commands](#commands)
 - [reference](#reference)
 
-## getting started
+## introduction
+
+Gin is good and great but it is minimal. I have been using [`Nestjs`](https://github.com/nestjs) in a production and never had a issue with it. Using its [CLI](https://github.com/nestjs/nest-cli) was a great developer experience. I feel like gin might need one as well.
+
+## installation
 
 build binary.
 
@@ -37,48 +44,46 @@ cd zig-out/bin
 sudo chmod +x ./kiwiwi
 ```
 
-run the binary.
+or, simply download prebuild binary from [release page](https://github.com/developerasun/kiwiwi/releases).
+
+## getting started
+
+do hello world.
 
 ```sh
-./kiwiwi Cat
-
-project kiwiwi with version 0.1
-firstArg: Cat
-template: package controller
-
-import (
-	"github.com/gin-gonic/gin"
-)
-
-@kiwiwi should escape double `{ }` for zig formatting
-func CatController(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{
-		Message: "ok",
-	})
-}
+./kiwiwi version
+Kiwiwi version 1.0.0
 ```
 
-In a local testing,
-
-run `./dev.run.sh --co Cat`
+check usage first.
 
 ```sh
-▶ Kiwiwi app start
-▶ Build and run with forwarded arguments
-project kiwiwi with version 0.1
-firstArg: Cat
-template: package controller
+./kiwiwi help
 
-import (
-	"github.com/gin-gonic/gin"
-)
+Usage: kiwiwi [command] [alias] [description]:
 
-@kiwiwi should escape double `{ }` for zig formatting
-func CatController(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{
-		Message: "ok",
-	})
-}
+Commands:
+
+  NAME            | ALIAS | DESCRIPTION
+  ----------------------------------------
+  help            | h     | Display help information
+  version         | v     | Display version information
+  controller      | co    | Generate a controller template
+  service         | s     | Generate a service template
+```
+
+create a controller.
+
+```sh
+# flag [controller-name]
+./kiwiwi co Health
+```
+
+create a service.
+
+```sh
+# flag [service-name]
+./kiwiwi s Health
 ```
 
 ## setup
@@ -148,19 +153,36 @@ run `asdf which zig`, `asdf which zls` commands and copy the path for target lan
 }
 ```
 
-## commands
+### testing
 
-a bit of helper commands to build and test zig application.
+a list of dev commands to test the application.
 
 ```sh
-# build and run whole application
-  ./dev.run.sh
+# Build and run whole application
+./dev.run.sh
 
-  # build and run one target file
-  ./dev.run.sh --build-one [filename]
+# Build and run one target file
+./dev.run.sh --build-one [filename]
 
-  # run test suites
-  ./dev.run.sh --test
+# Run test suites
+./dev.run.sh --test
+
+# Interact with kiwiwi binary. This will create user controller template
+./dev.run.sh --cli co User
+```
+
+In a local testing,
+
+run `./dev.run.sh --test`
+
+```sh
+▶ Kiwiwi app start
+▶ Running test cases
+...
+.asdf/installs/zig/0.15.1/lib/ --listen=-
+./.zig-cache/o/0378bedb3eea3dac6f66311afd13ff21/test --cache-dir=./.zig-cache --seed=0x8b0ccb9f --listen=-
+./.zig-cache/o/e46ef500cd374d265651fb3a9830655a/test --cache-dir=./.zig-cache --seed=0x8b0ccb9f --listen=-
+✔ Done
 ```
 
 ## reference
@@ -169,46 +191,4 @@ a bit of helper commands to build and test zig application.
 - [zig.guide: Running tests](https://zig.guide/getting-started/running-tests)
 - [github: gin-scaffold](https://github.com/dcu/gin-scaffold)
 - [zed docs: language support: Go](https://zed.dev/docs/languages/go#go)
-
-nestjs/cli
-
-```sh
-pnpm nest --help
-
-Usage: nest <command> [options]
-
-Options:
-  -v, --version                                   Output the current version.
-  -h, --help                                      Output usage information.
-
-Commands:
-  new|n [options] [name]                          Generate Nest application.
-  build [options] [app]                           Build Nest application.
-  start [options] [app]                           Run Nest application.
-  info|i                                          Display Nest project details.
-  add [options] <library>                         Adds support for an external library to your project.
-  generate|g [options] <schematic> [name] [path]  Generate a Nest element.
-    Schematics available on @nestjs/schematics collection:
-      ┌───────────────┬─────────────┬──────────────────────────────────────────────┐
-      │ name          │ alias       │ description                                  │
-      │ application   │ application │ Generate a new application workspace         │
-      │ class         │ cl          │ Generate a new class                         │
-      │ configuration │ config      │ Generate a CLI configuration file            │
-      │ controller    │ co          │ Generate a controller declaration            │
-      │ decorator     │ d           │ Generate a custom decorator                  │
-      │ filter        │ f           │ Generate a filter declaration                │
-      │ gateway       │ ga          │ Generate a gateway declaration               │
-      │ guard         │ gu          │ Generate a guard declaration                 │
-      │ interceptor   │ itc         │ Generate an interceptor declaration          │
-      │ interface     │ itf         │ Generate an interface                        │
-      │ library       │ lib         │ Generate a new library within a monorepo     │
-      │ middleware    │ mi          │ Generate a middleware declaration            │
-      │ module        │ mo          │ Generate a module declaration                │
-      │ pipe          │ pi          │ Generate a pipe declaration                  │
-      │ provider      │ pr          │ Generate a provider declaration              │
-      │ resolver      │ r           │ Generate a GraphQL resolver declaration      │
-      │ resource      │ res         │ Generate a new CRUD resource                 │
-      │ service       │ s           │ Generate a service declaration               │
-      │ sub-app       │ app         │ Generate a new application within a monorepo │
-      └───────────────┴─────────────┴──────────────────────────────────────────────┘
-```
+- [github: nestjs/nest-cli](https://github.com/nestjs/nest-cli)
