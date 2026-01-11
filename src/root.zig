@@ -1,55 +1,112 @@
 //! By convention, root.zig is the root source file when making a library.
 const std = @import("std");
-pub const tests = @import("root.test.zig");
+pub const tests = @import("root_test.zig");
 
-const MakeError = std.fs.Dir.MakeError;
-const SkipError = error.SkipZigTest;
+const KiwiwiError = error{
+    InvalidTemplate,
+};
 
-pub fn metadata() void {
-    const p = project();
-    const v = version();
-    std.debug.print("project {s} with version {d}\n", .{ p, v });
+pub fn Run() !void {
+    FlagList.init().print();
+
+    return KiwiwiError.InvalidTemplate;
 }
 
-fn project() []const u8 {
-    return "kiwiwi";
-}
+const FlagType = struct {
+    name: []const u8,
+    alias: []const u8,
+    description: []const u8,
+};
 
-fn version() f32 {
-    return 0.1;
-}
+const FlagList = struct {
+    // @dev set in runtime as field member
+    flags: []const FlagType,
 
-pub fn ParseArgument() ![]const u8 {
-    var args = std.process.args();
-    _ = args.next().?; // @dev ignore program name
+    // @dev set in compile time in struct
+    const default_flags = [_]FlagType{
+        .{ .name = "help", .alias = "h", .description = "Display help information" },
+        .{ .name = "version", .alias = "v", .description = "Display version information" },
+        .{ .name = "controller", .alias = "co", .description = "Generate a controller template" },
+        .{ .name = "service", .alias = "s", .description = "Generate a service template" },
+    };
 
-    const firstArg = args.next();
-
-    if (firstArg) |arg| {
-        std.debug.print("firstArg: {s}\n", .{arg});
-        return arg;
-    } else {
-        return error.MissingArgument;
+    pub fn init() FlagList {
+        return FlagList{ .flags = &default_flags };
     }
-}
 
-pub fn Generate(controllerName: []const u8) !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = gpa.deinit(); // @dev ensure no memory leaks
-    const allocator = gpa.allocator();
+    pub fn print(self: FlagList) void {
+        std.debug.print("Usage: kiwiwi [command] [alias] [description]:\n\n", .{});
+        std.debug.print("Commands:\n\n", .{});
 
-    const tmpl = try buildControllerTemplate(allocator, controllerName);
-    std.debug.print("template: {s}\n", .{tmpl});
+        std.debug.print("  {s:<15} | {s:<5} | {s}\n", .{ "NAME", "ALIAS", "DESCRIPTION" });
+        std.debug.print("  " ++ ("-" ** 40) ++ "\n", .{});
 
-    defer allocator.free(tmpl);
-}
+        for (self.flags) |flag| {
+            std.debug.print("  {s:<15} | {s:<5} | {s}\n", .{ flag.name, flag.alias, flag.description });
+        }
+        std.debug.print("\n\n", .{});
+    }
+};
 
-fn buildControllerTemplate(allocator: std.mem.Allocator, controllerName: []const u8) ![]const u8 {
-    const template = @embedFile("./templates/controller.kiwiwi");
-    const controllerTemplate = try std.fmt.allocPrint(allocator, template, .{controllerName});
+// 1. parse cli args
+// 2. match template type
+// 3. generate the template
+// 4. display success message
+const TemplateGenerator = struct {
+    const tmlController = @embedFile("./templates/controller.kiwiwi");
+    const tmlService = @embedFile("./templates/service.kiwiwi");
 
-    return controllerTemplate;
-}
+    fn parseArgument() ![]const u8 {
+        var args = std.process.args();
+        _ = args.next().?; // @dev ignore program name
+
+        const firstArg = args.next();
+
+        if (firstArg) |arg| {
+            return arg;
+        } else {
+            return error.MissingArgument;
+        }
+    }
+
+    fn matchTemplate(input: []const u8) !void {
+        const isController = std.mem.eql(u8, input, "controller") || std.mem.eql(u8, input, "co");
+        const isService = std.mem.eql(u8, input, "service") || std.mem.eql(u8, input, "s");
+
+        if (isController) {
+            return generateController(input);
+        }
+        if (isService) {
+            return generateService(input);
+        }
+        return error.InvalidTemplate;
+    }
+
+    // TODO add name and flag as params
+    fn generateController(controllerName: []const u8) ![]const u8 {
+        var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+        defer _ = gpa.deinit(); // @dev ensure no memory leaks
+        const allocator = gpa.allocator();
+
+        const template = @embedFile("./templates/controller.kiwiwi");
+        const tmpl = try std.fmt.allocPrint(allocator, template, .{controllerName});
+
+        defer allocator.free(tmpl);
+        return tmpl;
+    }
+
+    fn generateService(serviceName: []const u8) ![]const u8 {
+        var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+        defer _ = gpa.deinit(); // @dev ensure no memory leaks
+        const allocator = gpa.allocator();
+
+        const template = @embedFile("./templates/service.kiwiwi");
+        const tmpl = try std.fmt.allocPrint(allocator, template, .{serviceName});
+
+        defer allocator.free(tmpl);
+        return tmpl;
+    }
+};
 
 // @dev split test suites from implementation
 test "Should reference all test cases" {
