@@ -5,7 +5,7 @@
 
 <div align="center">
 
-<img src="./docs/logo.png" width="49%" />
+<img src="./docs/logo.png" width="150px" />
 
 The missing scaffold tool for [`Gin`](https://github.com/gin-gonic/gin) web framework.
 
