@@ -3,9 +3,17 @@
 
 # kiwiwi
 
+<div align="center">
+
+<img src="./docs/logo.png" width="49%" />
+
 The missing scaffold tool for [`Gin`](https://github.com/gin-gonic/gin) web framework.
 
-## Table of contents
+![Static Badge](https://img.shields.io/badge/license-MIT-green)
+
+</div>
+
+# Table of contents
 
 - [getting started](#getting-started)
 - [setup](#setup)
@@ -50,7 +58,7 @@ func CatController(ctx *gin.Context) {
 }
 ```
 
-In a local testing, 
+In a local testing,
 
 run `./dev.run.sh --co Cat`
 
@@ -77,7 +85,7 @@ func CatController(ctx *gin.Context) {
 
 ### package manager
 
-install `asdf` package manager first. 
+install `asdf` package manager first.
 
 ```sh
 # download asdf binary from github release page
@@ -102,7 +110,7 @@ zls version
 
 ### language server
 
-Depending on your editor, language server `zls` will be set slightly different. On zed, install `zig` extension first. 
+Depending on your editor, language server `zls` will be set slightly different. On zed, install `zig` extension first.
 And create `.zed` directory with `settings.json` file.
 
 run `asdf which zls` command and copy the path for target language server.
@@ -146,11 +154,11 @@ a bit of helper commands to build and test zig application.
 
 ```sh
 # build and run whole application
-  ./dev.run.sh         
-  
+  ./dev.run.sh
+
   # build and run one target file
-  ./dev.run.sh --build-one [filename] 
-  
+  ./dev.run.sh --build-one [filename]
+
   # run test suites
   ./dev.run.sh --test
 ```
