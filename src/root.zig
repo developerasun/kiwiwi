@@ -4,8 +4,11 @@ pub const tests = @import("root_test.zig");
 
 const KiwiwiError = error{
     InvalidTemplate,
+    InvalidCallback,
+    FlagNotSupported,
     FlagKeyNotGiven,
     FlagValueNotGiven,
+    UndefinedBehavior,
 };
 
 // 1. parse cli args
@@ -14,7 +17,9 @@ const KiwiwiError = error{
 // 4. display success message
 pub fn Run() !void {
     const parsed = try TemplateGenerator.parseArgument();
-    try TemplateGenerator.matchCallback(parsed.key, parsed.value);
+    try TemplateGenerator.matchCallback(parsed.callback, parsed.value);
+
+    return;
 }
 
 const FlagType = struct {
@@ -56,48 +61,97 @@ const FlagList = struct {
 const UserInput = struct {
     key: []const u8,
     value: []const u8,
+    callback: CallbackType,
+};
+
+const CallbackType = enum {
+    help,
+    version,
+    controller,
+    service,
 };
 
 const TemplateGenerator = struct {
-    pub const tmlController = @embedFile("./templates/controller.kiwiwi");
+    const tmlController = @embedFile("./templates/controller.kiwiwi");
     const tmlService = @embedFile("./templates/service.kiwiwi");
+
+    fn validateFlag(input: []const u8) bool {
+        for (FlagList.default_flags) |flag| {
+            if (std.mem.eql(u8, input, flag.name) or std.mem.eql(u8, input, flag.alias)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     fn parseArgument() !UserInput {
         var args = std.process.args();
         _ = args.next().?; // @dev ignore program name
 
         const flagKey = args.next() orelse return KiwiwiError.FlagKeyNotGiven;
-        const flagValue = args.next() orelse return KiwiwiError.FlagValueNotGiven;
+        const ok = validateFlag(flagKey);
+        if (!ok) return KiwiwiError.FlagNotSupported;
 
-        return UserInput{
-            .key = flagKey,
-            .value = flagValue,
+        const flagValue = args.next() orelse {
+            const fallbackValue = "";
+            if (std.mem.eql(u8, flagKey, "help") or std.mem.eql(u8, flagKey, "h")) {
+                return UserInput{
+                    .key = flagKey,
+                    .value = fallbackValue,
+                    .callback = CallbackType.help,
+                };
+            }
+
+            if (std.mem.eql(u8, flagKey, "version") or std.mem.eql(u8, flagKey, "v")) {
+                return UserInput{
+                    .key = flagKey,
+                    .value = fallbackValue,
+                    .callback = CallbackType.version,
+                };
+            }
+            return KiwiwiError.FlagValueNotGiven;
         };
+
+        if (std.mem.eql(u8, flagKey, "controller") or std.mem.eql(u8, flagKey, "co")) {
+            return UserInput{
+                .key = flagKey,
+                .value = flagValue,
+                .callback = CallbackType.controller,
+            };
+        }
+
+        if (std.mem.eql(u8, flagKey, "service") or std.mem.eql(u8, flagKey, "s")) {
+            return UserInput{
+                .key = flagKey,
+                .value = flagValue,
+                .callback = CallbackType.service,
+            };
+        }
+
+        return KiwiwiError.UndefinedBehavior;
     }
 
-    fn matchCallback(key: []const u8, value: []const u8) !void {
-        const isHelp = std.mem.eql(u8, key, "help") or std.mem.eql(u8, key, "h");
-        const isVersion = std.mem.eql(u8, key, "version") or std.mem.eql(u8, key, "v");
-        const isController = std.mem.eql(u8, key, "controller") or std.mem.eql(u8, key, "co");
-        const isService = std.mem.eql(u8, key, "service") or std.mem.eql(u8, key, "s");
+    fn matchCallback(callback: CallbackType, value: []const u8) !void {
+        switch (callback) {
+            .service => {
+                try generateService(value);
+                return;
+            },
+            .controller => {
+                try generateController(value);
+                return;
+            },
+            .help => {
+                printAppGuide();
+                return;
+            },
+            .version => {
+                printAppVersion();
+                return;
+            },
+        }
 
-        if (isHelp) {
-            printAppGuide();
-            return;
-        }
-        if (isVersion) {
-            printAppVersion();
-            return;
-        }
-        if (isController) {
-            try generateController(value);
-            return;
-        }
-        if (isService) {
-            try generateService(value);
-            return;
-        }
-        return error.InvalidTemplate;
+        return KiwiwiError.InvalidCallback;
     }
 
     fn printAppGuide() void {
@@ -109,7 +163,6 @@ const TemplateGenerator = struct {
         std.debug.print("Kiwiwi version 1.0.0\n", .{});
     }
 
-    // TODO add name and flag as params
     fn generateController(controllerName: []const u8) !void {
         var gpa = std.heap.GeneralPurposeAllocator(.{}){};
         defer _ = gpa.deinit(); // @dev ensure no memory leaks
