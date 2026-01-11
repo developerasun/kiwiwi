@@ -4,11 +4,17 @@ pub const tests = @import("root_test.zig");
 
 const KiwiwiError = error{
     InvalidTemplate,
+    FlagKeyNotGiven,
+    FlagValueNotGiven,
 };
 
+// 1. parse cli args
+// 2. match template type
+// 3. generate the template
+// 4. display success message
 pub fn Run() !void {
-    const input = try TemplateGenerator.parseArgument();
-    try TemplateGenerator.matchCallback(input);
+    const parsed = try TemplateGenerator.parseArgument();
+    try TemplateGenerator.matchCallback(parsed.key, parsed.value);
 }
 
 const FlagType = struct {
@@ -47,36 +53,33 @@ const FlagList = struct {
     }
 };
 
-// 1. parse cli args
-// 2. match template type
-// 3. generate the template
-// 4. display success message
+const UserInput = struct {
+    key: []const u8,
+    value: []const u8,
+};
+
 const TemplateGenerator = struct {
-    const tmlController = @embedFile("./templates/controller.kiwiwi");
+    pub const tmlController = @embedFile("./templates/controller.kiwiwi");
     const tmlService = @embedFile("./templates/service.kiwiwi");
 
-    fn parseArgument() ![]const u8 {
+    fn parseArgument() !UserInput {
         var args = std.process.args();
         _ = args.next().?; // @dev ignore program name
 
-        const firstArg = args.next();
+        const flagKey = args.next() orelse return KiwiwiError.FlagKeyNotGiven;
+        const flagValue = args.next() orelse return KiwiwiError.FlagValueNotGiven;
 
-        if (firstArg) |arg| {
-            return arg;
-        } else {
-            return error.MissingArgument;
-        }
+        return UserInput{
+            .key = flagKey,
+            .value = flagValue,
+        };
     }
 
-    // TODO parse clis
-    fn matchCallback(input: []const u8) !void {
-        std.debug.print("input: {s}\n\n", .{input});
-
-        // cli args is runtime. if declared as const, compiler will throw error
-        const isHelp = std.mem.eql(u8, input, "help") or std.mem.eql(u8, input, "h");
-        const isVersion = std.mem.eql(u8, input, "version") or std.mem.eql(u8, input, "v");
-        const isController = std.mem.eql(u8, input, "controller") or std.mem.eql(u8, input, "co");
-        const isService = std.mem.eql(u8, input, "service") or std.mem.eql(u8, input, "s");
+    fn matchCallback(key: []const u8, value: []const u8) !void {
+        const isHelp = std.mem.eql(u8, key, "help") or std.mem.eql(u8, key, "h");
+        const isVersion = std.mem.eql(u8, key, "version") or std.mem.eql(u8, key, "v");
+        const isController = std.mem.eql(u8, key, "controller") or std.mem.eql(u8, key, "co");
+        const isService = std.mem.eql(u8, key, "service") or std.mem.eql(u8, key, "s");
 
         if (isHelp) {
             printAppGuide();
@@ -87,11 +90,11 @@ const TemplateGenerator = struct {
             return;
         }
         if (isController) {
-            try generateController(input);
+            try generateController(value);
             return;
         }
         if (isService) {
-            try generateService(input);
+            try generateService(value);
             return;
         }
         return error.InvalidTemplate;
@@ -114,7 +117,7 @@ const TemplateGenerator = struct {
 
         const template = @embedFile("./templates/controller.kiwiwi");
         const tmpl = try std.fmt.allocPrint(allocator, template, .{controllerName});
-        std.debug.print("Generated controller template for {s}\n", .{tmpl});
+        std.debug.print("Generated controller template for {s}\n\n", .{tmpl});
 
         defer allocator.free(tmpl);
         return;
@@ -127,7 +130,7 @@ const TemplateGenerator = struct {
 
         const template = @embedFile("./templates/service.kiwiwi");
         const tmpl = try std.fmt.allocPrint(allocator, template, .{serviceName});
-        std.debug.print("Generated service template for {s}\n", .{tmpl});
+        std.debug.print("Generated service template for {s}\n\n", .{tmpl});
 
         defer allocator.free(tmpl);
         return;

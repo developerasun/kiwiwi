@@ -121,7 +121,3 @@ test "Should extract command lin args" {
         @panic("firstArg is null");
     }
 }
-
-// test "Should list available templates" {
-//     try expect(std.mem.eql(u8, helper.TemplatePicker.name(), "TemplatePicker"));
-// }
