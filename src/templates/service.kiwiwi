@@ -1,8 +1,8 @@
 package service
 
-type {s}Service struct {}
-type I{s}Service interface {}
+type {0s}Service struct {{}}
+type I{0s}Service interface {{}}
 
-func New{s}Service() I{s}Service {{
-	return &{s}Service{ }
+func New{0s}Service() I{0s}Service {{
+	return &{0s}Service{{ }}
 }}

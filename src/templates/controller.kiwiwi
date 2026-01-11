@@ -4,13 +4,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type {s}Controller struct {
-  {s}Service I{s}Service
-}
-type I{s}Controller interface {}
+type {0s}Controller struct {{
+  {0s}Service I{0s}Service
+}}
+type I{0s}Controller interface {{}}
 
-func New{s}Controller({s}Service I{s}Service) I{s}Controller {{
-	return &{s}Controller{
-	   {s}Service: {s}Service,
-	}
+func New{0s}Controller({0s}Service I{0s}Service) I{0s}Controller {{
+	return &{0s}Controller{{
+	   {0s}Service: {0s}Service,
+	}}
 }}
