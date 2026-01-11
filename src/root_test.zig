@@ -1,6 +1,5 @@
 const std = @import("std");
 const kiwiwi = @import("root.zig");
-const helper = @import("template_helper.zig");
 const expect = std.testing.expect;
 
 const MakeError = std.fs.Dir.MakeError;

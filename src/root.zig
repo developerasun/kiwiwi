@@ -7,9 +7,8 @@ const KiwiwiError = error{
 };
 
 pub fn Run() !void {
-    FlagList.init().print();
-
-    return KiwiwiError.InvalidTemplate;
+    const input = try TemplateGenerator.parseArgument();
+    try TemplateGenerator.matchCallback(input);
 }
 
 const FlagType = struct {
@@ -69,42 +68,69 @@ const TemplateGenerator = struct {
         }
     }
 
-    fn matchTemplate(input: []const u8) !void {
-        const isController = std.mem.eql(u8, input, "controller") || std.mem.eql(u8, input, "co");
-        const isService = std.mem.eql(u8, input, "service") || std.mem.eql(u8, input, "s");
+    // TODO parse clis
+    fn matchCallback(input: []const u8) !void {
+        std.debug.print("input: {s}\n\n", .{input});
 
+        // cli args is runtime. if declared as const, compiler will throw error
+        const isHelp = std.mem.eql(u8, input, "help") or std.mem.eql(u8, input, "h");
+        const isVersion = std.mem.eql(u8, input, "version") or std.mem.eql(u8, input, "v");
+        const isController = std.mem.eql(u8, input, "controller") or std.mem.eql(u8, input, "co");
+        const isService = std.mem.eql(u8, input, "service") or std.mem.eql(u8, input, "s");
+
+        if (isHelp) {
+            printAppGuide();
+            return;
+        }
+        if (isVersion) {
+            printAppVersion();
+            return;
+        }
         if (isController) {
-            return generateController(input);
+            try generateController(input);
+            return;
         }
         if (isService) {
-            return generateService(input);
+            try generateService(input);
+            return;
         }
         return error.InvalidTemplate;
     }
 
+    fn printAppGuide() void {
+        const fl = FlagList.init();
+        fl.print();
+    }
+
+    fn printAppVersion() void {
+        std.debug.print("Kiwiwi version 1.0.0\n", .{});
+    }
+
     // TODO add name and flag as params
-    fn generateController(controllerName: []const u8) ![]const u8 {
+    fn generateController(controllerName: []const u8) !void {
         var gpa = std.heap.GeneralPurposeAllocator(.{}){};
         defer _ = gpa.deinit(); // @dev ensure no memory leaks
         const allocator = gpa.allocator();
 
         const template = @embedFile("./templates/controller.kiwiwi");
         const tmpl = try std.fmt.allocPrint(allocator, template, .{controllerName});
+        std.debug.print("Generated controller template for {s}\n", .{tmpl});
 
         defer allocator.free(tmpl);
-        return tmpl;
+        return;
     }
 
-    fn generateService(serviceName: []const u8) ![]const u8 {
+    fn generateService(serviceName: []const u8) !void {
         var gpa = std.heap.GeneralPurposeAllocator(.{}){};
         defer _ = gpa.deinit(); // @dev ensure no memory leaks
         const allocator = gpa.allocator();
 
         const template = @embedFile("./templates/service.kiwiwi");
         const tmpl = try std.fmt.allocPrint(allocator, template, .{serviceName});
+        std.debug.print("Generated service template for {s}\n", .{tmpl});
 
         defer allocator.free(tmpl);
-        return tmpl;
+        return;
     }
 };
 
