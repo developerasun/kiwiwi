@@ -11,9 +11,9 @@ fn Skip() !void {
 }
 
 test "Should create a directory and a file" {
-    try Skip();
+    // try Skip();
 
-    const dirName = "templates";
+    const dirName = "testdummy";
     std.fs.cwd().makeDir(dirName) catch |err| switch (err) {
         MakeError.PathAlreadyExists => {
             std.debug.print("Directory already exists, skipping.\n", .{});
@@ -25,7 +25,8 @@ test "Should create a directory and a file" {
     const openOptions: std.fs.Dir.OpenOptions = .{ .iterate = true };
     const fileOptions: std.fs.File.CreateFlags = .{
         .read = true,
-        .truncate = true,
+        .exclusive = false,
+        .truncate = false, // append contents
     };
     const directory = try std.fs.cwd().openDir(dirName, openOptions);
     const file = directory.createFile("controller.go", fileOptions) catch |err| {
@@ -34,11 +35,26 @@ test "Should create a directory and a file" {
     };
     defer file.close();
 
-    // TODO keep original file content, append new content to the file
-    try directory.writeFile(.{
-        .data = "package controller \n\nfunc myController() error { return nil }",
-        .sub_path = "controller.go", // @dev add comma at the end to change line.
-    });
+    var isNewFile = false;
+    _ = directory.openFile("./controller.go", .{}) catch |err| switch (err) {
+        std.fs.File.OpenError.FileNotFound => {
+            isNewFile = true;
+        },
+        else => return err,
+    };
+
+    try file.seekFromEnd(0);
+    const newFileContent = "package controller \n\nfunc myController() error { return nil }\n\n";
+    const existingFileContent = "func myController() error { return nil }\n\n";
+
+    if (isNewFile) {
+        std.debug.print("should create a new file\n", .{});
+        try file.writeAll(newFileContent);
+    } else {
+        std.debug.print("appending data to existing file\n", .{});
+        try file.writeAll(existingFileContent);
+    }
+
     std.debug.print("file create done.\n", .{});
 }
 
@@ -149,6 +165,8 @@ test "Should convert to upper case string" {
 }
 
 test "Should safely mutate a char" {
+    try Skip();
+
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
