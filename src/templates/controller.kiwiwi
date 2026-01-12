@@ -2,15 +2,45 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type {0s}Controller struct {{
   {0s}Service I{0s}Service
 }}
-type I{0s}Controller interface {{}}
+type New{0s}Controller interface {{
+  RegisterRoute()
+}}
 
-func New{0s}Controller({0s}Service I{0s}Service) I{0s}Controller {{
+func New{0s}Controller({0s}Service I{0s}Service) New{0s}Controller {{
 	return &{0s}Controller{{
 	   {0s}Service: {0s}Service,
 	}}
+}}
+
+func (c *{0s}Controller) RegisterRoute(engine *gin.Engine) {{
+	c.{0s}BindGroup(engine)
+}}
+
+func (c *{0s}Controller) {0s}BindGroup(r *gin.Engine) {{
+  {0s}Routes := r.Group("/{0s}");
+
+  {0s}Routes.{1s}("/", c.{0s});
+}}
+
+
+// {0s} godoc
+// @Summary Lorem ipsum dolor sit amet
+// @Description Consectetur adipiscing elit. Integer ut maximus
+// @Tags api
+// @Produce json
+// @Success  200 {{object}}  dto.{0s}Response
+// @Failure   500  {{object}}  dto.{0s}ErrorResponse
+// @Router /api/{0s} [{2s}]
+func (c *{0s}Controller) {0s}(ctx *gin.Context) {{
+	// Implementation goes here
+
+	ctx.JSON(http.StatusOK, dto.{0s}Response{{
+		Message: "ok",
+	}})
 }}
