@@ -73,7 +73,7 @@ test "Should print a templated controller" {
     std.debug.print("template type name: {s}\n", .{templateTypeName});
 
     const controllerName = "Health";
-    const controllerTemplate = try std.fmt.allocPrint(allocator, template, .{controllerName});
+    const controllerTemplate = try std.fmt.allocPrint(allocator, template, .{ controllerName, "GET", "get" });
     defer allocator.free(controllerTemplate);
 
     std.debug.print("full template: {s}\n", .{controllerTemplate});
@@ -120,4 +120,28 @@ test "Should extract command lin args" {
     } else {
         @panic("firstArg is null");
     }
+}
+
+test "Should convert to upper case string" {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    // multiple alloc, free once
+    var arena = std.heap.ArenaAllocator.init(allocator);
+    defer arena.deinit();
+
+    const methodGet = "get";
+    const methodPost = "post";
+
+    const outputGet = try arena.allocator().alloc(u8, methodGet.len);
+    const upperGet = std.ascii.upperString(outputGet, methodGet);
+    try expect(std.mem.eql(u8, upperGet, "GET"));
+
+    const outputPost = try arena.allocator().alloc(u8, methodPost.len);
+    const upperPost = std.ascii.upperString(outputPost, methodPost);
+    try expect(std.mem.eql(u8, upperPost, "POST"));
+
+    std.debug.print("upperGet: {s}\n", .{upperGet});
+    std.debug.print("upperPost: {s}\n", .{upperPost});
 }
