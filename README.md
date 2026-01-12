@@ -15,6 +15,7 @@ The missing scaffold tool for [`Gin`](https://github.com/gin-gonic/gin) web fram
 
 # Table of contents
 
+- [demo](#demo)
 - [introduction](#introduction)
 - [installation](#installation)
 - [getting started](#getting-started)
@@ -24,6 +25,10 @@ The missing scaffold tool for [`Gin`](https://github.com/gin-gonic/gin) web fram
   - [testing](#testing)
 - [commands](#commands)
 - [reference](#reference)
+
+## demo
+
+https://github.com/user-attachments/assets/0e557f3e-e794-47ff-b410-978ec7757cc8
 
 ## introduction
 
@@ -75,8 +80,8 @@ Commands:
 create a controller.
 
 ```sh
-# flag [controller-name]
-./kiwiwi co Health
+# flag [controller-name] [http-method]
+./kiwiwi co Health get
 ```
 
 create a service.
