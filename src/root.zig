@@ -19,7 +19,7 @@ const KiwiwiError = error{
 // 4. display success message
 pub fn Run() !void {
     const parsed = try TemplateGenerator.parseArgument();
-    try TemplateGenerator.matchCallback(parsed.callback, parsed.value);
+    try TemplateGenerator.matchCallback(parsed.callback, parsed.value, parsed.httpMethod);
 
     return;
 }
@@ -65,6 +65,7 @@ const UserInput = struct {
     key: []const u8,
     value: []const u8,
     callback: CallbackType,
+    httpMethod: ?[]const u8,
 };
 
 const CallbackType = enum {
@@ -99,6 +100,7 @@ const TemplateGenerator = struct {
                     .key = flagKey,
                     .value = fallbackValue,
                     .callback = CallbackType.help,
+                    .httpMethod = null,
                 };
             }
 
@@ -107,6 +109,7 @@ const TemplateGenerator = struct {
                     .key = flagKey,
                     .value = fallbackValue,
                     .callback = CallbackType.version,
+                    .httpMethod = null,
                 };
             }
             return KiwiwiError.FlagValueNotGiven;
@@ -116,11 +119,12 @@ const TemplateGenerator = struct {
             const httpMethod = args.next() orelse {
                 return KiwiwiError.FlagNotEnoughArguments;
             };
-            std.debug.print("method: {s}\n", .{httpMethod});
+
             return UserInput{
                 .key = flagKey,
                 .value = flagValue,
                 .callback = CallbackType.controller,
+                .httpMethod = httpMethod,
             };
         }
 
@@ -129,20 +133,25 @@ const TemplateGenerator = struct {
                 .key = flagKey,
                 .value = flagValue,
                 .callback = CallbackType.service,
+                .httpMethod = null,
             };
         }
 
         return KiwiwiError.UndefinedBehavior;
     }
 
-    fn matchCallback(callback: CallbackType, value: []const u8) !void {
+    fn matchCallback(callback: CallbackType, value: []const u8, httpMethod: ?[]const u8) !void {
         switch (callback) {
             .service => {
                 try generateService(value);
                 return;
             },
             .controller => {
-                try generateController(value, "get");
+                // @dev httpMethod is guaranteed to be non-null in `parseArgument`.
+                const method = httpMethod orelse {
+                    unreachable;
+                };
+                try generateController(value, method);
                 return;
             },
             .help => {
@@ -168,23 +177,27 @@ const TemplateGenerator = struct {
     }
 
     fn generateController(controllerName: []const u8, httpMethod: []const u8) !void {
+        var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+        defer _ = gpa.deinit(); // @dev ensure no memory leaks
+        const baseAllocator = gpa.allocator();
+        var arena = std.heap.ArenaAllocator.init(baseAllocator);
+        defer arena.deinit();
+
+        const methodOutput = try arena.allocator().alloc(u8, httpMethod.len);
+        const methodUpper = std.ascii.upperString(methodOutput, httpMethod);
+
         for (FlagList.default_http_methods) |method| {
-            if (std.mem.eql(u8, method, httpMethod)) {
+            if (std.mem.eql(u8, method, methodUpper)) {
                 break;
             } else {
                 return KiwiwiError.HttpMethodNotSupported;
             }
         }
 
-        var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-        defer _ = gpa.deinit(); // @dev ensure no memory leaks
-        const allocator = gpa.allocator();
-
         const raw = @embedFile("./templates/controller.kiwiwi");
-        const template = try std.fmt.allocPrint(allocator, raw, .{ controllerName, "GET", "get" });
+        const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ controllerName, methodUpper, methodUpper });
         std.debug.print("Generated controller template for {s}\n\n", .{template});
 
-        defer allocator.free(template);
         return;
     }
 
