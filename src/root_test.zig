@@ -10,8 +10,9 @@ fn Skip() !void {
     if (shouldSkip) return SkipError;
 }
 
+// @dev zed editor might not immediately refresh appned file contents.
 test "Should create a directory and a file" {
-    // try Skip();
+    try Skip();
 
     const dirName = "testdummy";
     std.fs.cwd().makeDir(dirName) catch |err| switch (err) {

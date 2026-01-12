@@ -203,6 +203,8 @@ const TemplateGenerator = struct {
         const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ controllerName, methodUpper, namedCopiedAsPrivate });
         std.debug.print("Generated controller template for {s}\n\n", .{template});
 
+        // TODO
+        try BoilerplateManager.write("controller");
         return;
     }
 
@@ -217,6 +219,55 @@ const TemplateGenerator = struct {
 
         defer allocator.free(tmpl);
         return;
+    }
+};
+
+const BoilerplateManager = struct {
+    fn ignore(context: []const u8) void {
+        std.debug.print("{s}: no operation, ignoring\n\n", .{context});
+    }
+
+    fn write(directoryName: []const u8) !void {
+        std.fs.cwd().makeDir(directoryName) catch |err| switch (err) {
+            std.fs.Dir.MakeError.PathAlreadyExists => {
+                ignore("std.fs.Dir.MakeError.PathAlreadyExists");
+            },
+            else => return err,
+        };
+
+        var directory = try std.fs.cwd().openDir(directoryName, .{ .iterate = true });
+        defer directory.close();
+
+        var file = try directory.createFile("controller.go", .{
+            .read = true,
+            .truncate = false,
+        });
+        defer file.close();
+
+        const stat = try file.stat();
+        const is_empty = stat.size == 0;
+
+        try file.seekFromEnd(0);
+        const posBefore = try file.getPos();
+        std.debug.print("check current cursor position: {d}.\n", .{posBefore});
+
+        const newFileContent = "package controller \n\nfunc myController() error { return nil }\n\n";
+        const existingFileContent = "func myController() error { return nil }\n\n";
+
+        if (is_empty) {
+            std.debug.print("should create a new file\n", .{});
+            try file.writeAll(newFileContent);
+            try file.sync();
+        } else {
+            std.debug.print("appending data to existing file\n", .{});
+            try file.writeAll(existingFileContent);
+            try file.sync();
+        }
+
+        const posAfter = try file.getPos();
+
+        std.debug.print("check current cursor position after write: {d}.\n", .{posAfter});
+        std.debug.print("file create done.\n", .{});
     }
 };
 
