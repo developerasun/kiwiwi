@@ -8,6 +8,8 @@ const KiwiwiError = error{
     FlagNotSupported,
     FlagKeyNotGiven,
     FlagValueNotGiven,
+    FlagNotEnoughArguments,
+    HttpMethodNotSupported,
     UndefinedBehavior,
 };
 
@@ -39,6 +41,7 @@ const FlagList = struct {
         .{ .name = "controller", .alias = "co", .description = "Generate a controller template" },
         .{ .name = "service", .alias = "s", .description = "Generate a service template" },
     };
+    const default_http_methods = [_][]const u8{ "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD" };
 
     pub fn init() FlagList {
         return FlagList{ .flags = &default_flags };
@@ -72,9 +75,6 @@ const CallbackType = enum {
 };
 
 const TemplateGenerator = struct {
-    const tmlController = @embedFile("./templates/controller.kiwiwi");
-    const tmlService = @embedFile("./templates/service.kiwiwi");
-
     fn validateFlag(input: []const u8) bool {
         for (FlagList.default_flags) |flag| {
             if (std.mem.eql(u8, input, flag.name) or std.mem.eql(u8, input, flag.alias)) {
@@ -113,6 +113,10 @@ const TemplateGenerator = struct {
         };
 
         if (std.mem.eql(u8, flagKey, "controller") or std.mem.eql(u8, flagKey, "co")) {
+            const httpMethod = args.next() orelse {
+                return KiwiwiError.FlagNotEnoughArguments;
+            };
+            std.debug.print("method: {s}\n", .{httpMethod});
             return UserInput{
                 .key = flagKey,
                 .value = flagValue,
@@ -138,7 +142,7 @@ const TemplateGenerator = struct {
                 return;
             },
             .controller => {
-                try generateController(value);
+                try generateController(value, "get");
                 return;
             },
             .help => {
@@ -163,16 +167,24 @@ const TemplateGenerator = struct {
         std.debug.print("Kiwiwi version 1.0.0\n", .{});
     }
 
-    fn generateController(controllerName: []const u8) !void {
+    fn generateController(controllerName: []const u8, httpMethod: []const u8) !void {
+        for (FlagList.default_http_methods) |method| {
+            if (std.mem.eql(u8, method, httpMethod)) {
+                break;
+            } else {
+                return KiwiwiError.HttpMethodNotSupported;
+            }
+        }
+
         var gpa = std.heap.GeneralPurposeAllocator(.{}){};
         defer _ = gpa.deinit(); // @dev ensure no memory leaks
         const allocator = gpa.allocator();
 
-        const template = @embedFile("./templates/controller.kiwiwi");
-        const tmpl = try std.fmt.allocPrint(allocator, template, .{controllerName});
-        std.debug.print("Generated controller template for {s}\n\n", .{tmpl});
+        const raw = @embedFile("./templates/controller.kiwiwi");
+        const template = try std.fmt.allocPrint(allocator, raw, .{ controllerName, "GET", "get" });
+        std.debug.print("Generated controller template for {s}\n\n", .{template});
 
-        defer allocator.free(tmpl);
+        defer allocator.free(template);
         return;
     }
 
