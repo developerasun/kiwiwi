@@ -36,9 +36,9 @@ const FlagList = struct {
 
     // @dev set in compile time in struct
     const default_flags = [_]FlagType{
-        .{ .name = "help", .alias = "h", .description = "Display help information" },
-        .{ .name = "version", .alias = "v", .description = "Display version information" },
-        .{ .name = "controller", .alias = "co", .description = "Generate a controller template" },
+        .{ .name = "help", .alias = "-", .description = "Display help information" },
+        .{ .name = "version", .alias = "-", .description = "Display version information" },
+        .{ .name = "controller", .alias = "co", .description = "Generate a controller template for a http method" },
         .{ .name = "service", .alias = "s", .description = "Generate a service template" },
     };
     const default_http_methods = [_][]const u8{ "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD" };
@@ -95,7 +95,7 @@ const TemplateGenerator = struct {
 
         const flagValue = args.next() orelse {
             const fallbackValue = "";
-            if (std.mem.eql(u8, flagKey, "help") or std.mem.eql(u8, flagKey, "h")) {
+            if (std.mem.eql(u8, flagKey, "help")) {
                 return UserInput{
                     .key = flagKey,
                     .value = fallbackValue,
@@ -104,7 +104,7 @@ const TemplateGenerator = struct {
                 };
             }
 
-            if (std.mem.eql(u8, flagKey, "version") or std.mem.eql(u8, flagKey, "v")) {
+            if (std.mem.eql(u8, flagKey, "version")) {
                 return UserInput{
                     .key = flagKey,
                     .value = fallbackValue,
@@ -168,12 +168,11 @@ const TemplateGenerator = struct {
     }
 
     fn printAppGuide() void {
-        const fl = FlagList.init();
-        fl.print();
+        FlagList.init().print();
     }
 
     fn printAppVersion() void {
-        std.debug.print("Kiwiwi version 1.0.0\n", .{});
+        std.debug.print("Kiwiwi version 0.3.0\n", .{});
     }
 
     fn generateController(controllerName: []const u8, httpMethod: []const u8) !void {
@@ -183,19 +182,25 @@ const TemplateGenerator = struct {
         var arena = std.heap.ArenaAllocator.init(baseAllocator);
         defer arena.deinit();
 
-        const methodOutput = try arena.allocator().alloc(u8, httpMethod.len);
-        const methodUpper = std.ascii.upperString(methodOutput, httpMethod);
+        const outputUpper = try arena.allocator().alloc(u8, httpMethod.len);
+        const methodUpper = std.ascii.upperString(outputUpper, httpMethod);
+        var namedCopiedAsPrivate = try arena.allocator().dupe(u8, controllerName);
+        namedCopiedAsPrivate[0] = std.ascii.toLower(namedCopiedAsPrivate[0]); // handle go's access modifier. lower for private, upper for public.
 
+        var isSupportedMethod = false;
         for (FlagList.default_http_methods) |method| {
             if (std.mem.eql(u8, method, methodUpper)) {
+                isSupportedMethod = true;
                 break;
-            } else {
-                return KiwiwiError.HttpMethodNotSupported;
             }
         }
 
+        if (!isSupportedMethod) {
+            return KiwiwiError.HttpMethodNotSupported;
+        }
+
         const raw = @embedFile("./templates/controller.kiwiwi");
-        const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ controllerName, methodUpper, methodUpper });
+        const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ controllerName, methodUpper, namedCopiedAsPrivate });
         std.debug.print("Generated controller template for {s}\n\n", .{template});
 
         return;

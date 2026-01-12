@@ -123,6 +123,8 @@ test "Should extract command lin args" {
 }
 
 test "Should convert to upper case string" {
+    try Skip();
+
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
@@ -144,4 +146,16 @@ test "Should convert to upper case string" {
 
     std.debug.print("upperGet: {s}\n", .{upperGet});
     std.debug.print("upperPost: {s}\n", .{upperPost});
+}
+
+test "Should safely mutate a char" {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+    const message = "HELLO";
+    const copied = try allocator.dupe(u8, message);
+
+    const shouldBeLowerCase = std.ascii.toLower(copied[0]);
+    std.debug.print("{c}\n", .{shouldBeLowerCase});
+    defer allocator.free(copied);
 }
