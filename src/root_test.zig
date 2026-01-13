@@ -12,7 +12,7 @@ fn Skip() !void {
 
 // @dev zed editor might not immediately refresh append file contents.
 test "Should create a directory and a file" {
-    // try Skip();
+    try Skip();
 
     const dirName = "testdummy";
     std.fs.cwd().makeDir(dirName) catch |err| switch (err) {
@@ -193,4 +193,15 @@ test "Should print a generated ascii art" {
     ;
 
     std.debug.print("{s}\n", .{kiwi});
+}
+
+test "Should concat strings in comptime" {
+    try Skip();
+
+    const str1 = "Hello";
+    const str2 = "World";
+
+    // @dev use `++` operator for comptime, use allocator for runtime.
+    const result = str1 ++ " " ++ str2;
+    std.debug.print("{s}\n", .{result});
 }

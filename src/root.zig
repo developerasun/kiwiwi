@@ -220,23 +220,28 @@ const TemplateGenerator = struct {
 
         const raw = @embedFile("./templates/controller.kiwiwi");
         const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ controllerName, methodUpper, namedCopiedAsPrivate });
-        std.debug.print("Generated controller template for {s}\n\n", .{template});
+        const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{namedCopiedAsPrivate});
 
-        try BoilerplateManager.write("controller", template);
+        std.debug.print("Generated controller template for {s}\n\n{s}\n\n", .{ fileName, template });
+        try BoilerplateManager.write("controller", fileName, template);
         return;
     }
 
     fn generateService(serviceName: []const u8) !void {
         var gpa = std.heap.GeneralPurposeAllocator(.{}){};
         defer _ = gpa.deinit(); // @dev ensure no memory leaks
-        const allocator = gpa.allocator();
+        const baseAllocator = gpa.allocator();
+        var arena = std.heap.ArenaAllocator.init(baseAllocator);
+        defer arena.deinit();
 
-        const template = @embedFile("./templates/service.kiwiwi");
-        const tmpl = try std.fmt.allocPrint(allocator, template, .{serviceName});
-        std.debug.print("Generated service template for {s}\n\n", .{tmpl});
+        const raw = @embedFile("./templates/service.kiwiwi");
+        const template = try std.fmt.allocPrint(arena.allocator(), raw, .{serviceName});
+        var serviceNameCopied = try arena.allocator().dupe(u8, serviceName);
+        serviceNameCopied[0] = std.ascii.toLower(serviceNameCopied[0]);
+        const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{serviceNameCopied});
 
-        try BoilerplateManager.write("service", tmpl);
-        defer allocator.free(tmpl);
+        std.debug.print("Generated service template for {s}\n\n{s}\n\n", .{ fileName, template });
+        try BoilerplateManager.write("service", fileName, template);
         return;
     }
 };
@@ -246,22 +251,25 @@ const BoilerplateManager = struct {
         std.debug.print("{s}: no operation, ignoring\n\n", .{context});
     }
 
-    // TODO
-    fn write(directoryName: []const u8, template: []const u8) !void {
+    fn write(directoryName: []const u8, fileName: []const u8, template: []const u8) !void {
         std.fs.cwd().makeDir(directoryName) catch |err| switch (err) {
             std.fs.Dir.MakeError.PathAlreadyExists => {
-                ignore("std.fs.Dir.MakeError.PathAlreadyExists");
+                ignore("BoilerplateManager: write: PathAlreadyExists");
             },
             else => return err,
         };
 
-        var directory = try std.fs.cwd().openDir(directoryName, .{ .iterate = true });
+        const openDirOptions: std.fs.Dir.OpenOptions = .{ .access_sub_paths = true, .iterate = true };
+        var directory = try std.fs.cwd().openDir(directoryName, openDirOptions);
         defer directory.close();
 
-        var file = try directory.createFile("controller.go", .{
+        const createFileOptions: std.fs.File.CreateFlags = .{
+            .exclusive = false,
+            .lock = .shared,
             .read = true,
-            .truncate = false,
-        });
+            .truncate = false, // handle appending contents
+        };
+        var file = try directory.createFile(fileName, createFileOptions);
         defer file.close();
 
         const stat = try file.stat();
