@@ -203,8 +203,7 @@ const TemplateGenerator = struct {
         const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ controllerName, methodUpper, namedCopiedAsPrivate });
         std.debug.print("Generated controller template for {s}\n\n", .{template});
 
-        // TODO
-        try BoilerplateManager.write("controller");
+        try BoilerplateManager.write("controller", template);
         return;
     }
 
@@ -217,6 +216,7 @@ const TemplateGenerator = struct {
         const tmpl = try std.fmt.allocPrint(allocator, template, .{serviceName});
         std.debug.print("Generated service template for {s}\n\n", .{tmpl});
 
+        try BoilerplateManager.write("service", tmpl);
         defer allocator.free(tmpl);
         return;
     }
@@ -227,7 +227,8 @@ const BoilerplateManager = struct {
         std.debug.print("{s}: no operation, ignoring\n\n", .{context});
     }
 
-    fn write(directoryName: []const u8) !void {
+    // TODO
+    fn write(directoryName: []const u8, template: []const u8) !void {
         std.fs.cwd().makeDir(directoryName) catch |err| switch (err) {
             std.fs.Dir.MakeError.PathAlreadyExists => {
                 ignore("std.fs.Dir.MakeError.PathAlreadyExists");
@@ -251,7 +252,7 @@ const BoilerplateManager = struct {
         const posBefore = try file.getPos();
         std.debug.print("check current cursor position: {d}.\n", .{posBefore});
 
-        const newFileContent = "package controller \n\nfunc myController() error { return nil }\n\n";
+        const newFileContent = template;
         const existingFileContent = "func myController() error { return nil }\n\n";
 
         if (is_empty) {

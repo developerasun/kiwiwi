@@ -11,8 +11,9 @@ fn Skip() !void {
 }
 
 // @dev zed editor might not immediately refresh appned file contents.
+// TODO sync test code
 test "Should create a directory and a file" {
-    try Skip();
+    // try Skip();
 
     const dirName = "testdummy";
     std.fs.cwd().makeDir(dirName) catch |err| switch (err) {
