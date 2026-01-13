@@ -1,8 +1,8 @@
 package service
 
-type {0s}Service struct {{}}
+type {1s}Service struct {{}}
 type I{0s}Service interface {{}}
 
 func New{0s}Service() I{0s}Service {{
-	return &{0s}Service{{ }}
+	return &{1s}Service{{ }}
 }}

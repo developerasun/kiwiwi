@@ -242,14 +242,18 @@ const TemplateGenerator = struct {
         var arena = std.heap.ArenaAllocator.init(baseAllocator);
         defer arena.deinit();
 
+        const firstArg = try arena.allocator().dupe(u8, serviceName);
+        firstArg[0] = std.ascii.toUpper(firstArg[0]);
+
+        const secondArg = try arena.allocator().dupe(u8, serviceName);
+        secondArg[0] = std.ascii.toLower(secondArg[0]);
+
         const raw = @embedFile("./templates/service.kiwiwi");
         const rawPartial = @embedFile("./templates/service.append.kiwiwi");
 
-        const template = try std.fmt.allocPrint(arena.allocator(), raw, .{serviceName});
-        const templatePartial = try std.fmt.allocPrint(arena.allocator(), rawPartial, .{serviceName});
-        var serviceNameCopied = try arena.allocator().dupe(u8, serviceName);
-        serviceNameCopied[0] = std.ascii.toLower(serviceNameCopied[0]);
-        const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{serviceNameCopied});
+        const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ firstArg, secondArg });
+        const templatePartial = try std.fmt.allocPrint(arena.allocator(), rawPartial, .{ firstArg, secondArg });
+        const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{secondArg});
 
         std.debug.print("Generated service template for {s}\n\n{s}\n\n", .{ fileName, template });
         try BoilerplateManager.write("service", fileName, template, templatePartial);
