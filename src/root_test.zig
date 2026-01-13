@@ -13,7 +13,7 @@ fn Skip() !void {
 // @dev zed editor might not immediately refresh appned file contents.
 // TODO sync test code
 test "Should create a directory and a file" {
-    // try Skip();
+    try Skip();
 
     const dirName = "testdummy";
     std.fs.cwd().makeDir(dirName) catch |err| switch (err) {
@@ -178,4 +178,26 @@ test "Should safely mutate a char" {
     const shouldBeLowerCase = std.ascii.toLower(copied[0]);
     std.debug.print("{c}\n", .{shouldBeLowerCase});
     defer allocator.free(copied);
+}
+
+test "Should print a generated ascii art" {
+    const kiwi =
+        \\                                       .-+*##*=:.   KIWIWI~!!
+        \\                                    .-#*+-----=+*#+.  /
+        \\                                    +#=-----------=#%-
+        \\                                   *#=+#-------------+#%*:.
+        \\                                .=##*+*%=-*+------------=#*.
+        \\                              .*#-::::+%------------------#+
+        \\                              **=#%%%=--------------------+#
+        \\                              .::. .@=--------------------*+
+        \\                                    -%=------------------+#.
+        \\                                     :#*----------------*#:
+        \\                                       .*#*++==---==+*#*:
+        \\                                          .::--=%#=-**.
+        \\                                                :#: .*-
+        \\                                                :*-  -#.
+        \\                                               .=:. -*-.
+    ;
+
+    std.debug.print("{s}\n", .{kiwi});
 }

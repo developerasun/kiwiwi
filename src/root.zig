@@ -36,6 +36,7 @@ const FlagList = struct {
 
     // @dev set in compile time in struct
     const default_flags = [_]FlagType{
+        .{ .name = "cry", .alias = "-", .description = "Display symbol information" },
         .{ .name = "help", .alias = "-", .description = "Display help information" },
         .{ .name = "version", .alias = "-", .description = "Display version information" },
         .{ .name = "controller", .alias = "co", .description = "Generate a controller template for a http method" },
@@ -69,6 +70,7 @@ const UserInput = struct {
 };
 
 const CallbackType = enum {
+    cry,
     help,
     version,
     controller,
@@ -95,6 +97,15 @@ const TemplateGenerator = struct {
 
         const flagValue = args.next() orelse {
             const fallbackValue = "";
+            if (std.mem.eql(u8, flagKey, "cry")) {
+                return UserInput{
+                    .key = flagKey,
+                    .value = fallbackValue,
+                    .callback = CallbackType.cry,
+                    .httpMethod = null,
+                };
+            }
+
             if (std.mem.eql(u8, flagKey, "help")) {
                 return UserInput{
                     .key = flagKey,
@@ -142,6 +153,18 @@ const TemplateGenerator = struct {
 
     fn matchCallback(callback: CallbackType, value: []const u8, httpMethod: ?[]const u8) !void {
         switch (callback) {
+            .cry => {
+                printAppSymbol();
+                return;
+            },
+            .help => {
+                printAppGuide();
+                return;
+            },
+            .version => {
+                printAppVersion();
+                return;
+            },
             .service => {
                 try generateService(value);
                 return;
@@ -152,14 +175,6 @@ const TemplateGenerator = struct {
                     unreachable;
                 };
                 try generateController(value, method);
-                return;
-            },
-            .help => {
-                printAppGuide();
-                return;
-            },
-            .version => {
-                printAppVersion();
                 return;
             },
         }
@@ -173,6 +188,10 @@ const TemplateGenerator = struct {
 
     fn printAppVersion() void {
         std.debug.print("Kiwiwi version 0.3.0\n", .{});
+    }
+
+    fn printAppSymbol() void {
+        std.debug.print("\n{s}\n\n", .{AscilArtStore.kiwi});
     }
 
     fn generateController(controllerName: []const u8, httpMethod: []const u8) !void {
@@ -270,6 +289,26 @@ const BoilerplateManager = struct {
         std.debug.print("check current cursor position after write: {d}.\n", .{posAfter});
         std.debug.print("file create done.\n", .{});
     }
+};
+
+const AscilArtStore = struct {
+    const kiwi =
+        \\                                       .-+*##*=:.   KIWIWI~!!
+        \\                                    .-#*+-----=+*#+.  /
+        \\                                    +#=-----------=#%-
+        \\                                   *#=+#-------------+#%*:.
+        \\                                .=##*+*%=-*+------------=#*.
+        \\                              .*#-::::+%------------------#+
+        \\                              **=#%%%=--------------------+#
+        \\                              .::. .@=--------------------*+
+        \\                                    -%=------------------+#.
+        \\                                     :#*----------------*#:
+        \\                                       .*#*++==---==+*#*:
+        \\                                          .::--=%#=-**.
+        \\                                                :#: .*-
+        \\                                                :*-  -#.
+        \\                                               .=:. -*-.
+    ;
 };
 
 // @dev split test suites from implementation
