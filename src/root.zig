@@ -207,14 +207,25 @@ const TemplateGenerator = struct {
         var arena = std.heap.ArenaAllocator.init(baseAllocator);
         defer arena.deinit();
 
-        const outputUpper = try arena.allocator().alloc(u8, httpMethod.len);
-        const methodUpper = std.ascii.upperString(outputUpper, httpMethod);
-        var namedCopiedAsPrivate = try arena.allocator().dupe(u8, controllerName);
-        namedCopiedAsPrivate[0] = std.ascii.toLower(namedCopiedAsPrivate[0]); // handle go's access modifier. lower for private, upper for public.
+        // consturctor name
+        const firstArg = try arena.allocator().dupe(u8, controllerName);
+        firstArg[0] = std.ascii.toUpper(firstArg[0]);
+
+        // flag check and gin group
+        const bufferMethod = try arena.allocator().alloc(u8, httpMethod.len);
+        const secondArgAsMethodCapitalized = std.ascii.upperString(bufferMethod, httpMethod);
+
+        // private struct as constructor return type
+        const thirdArg = try arena.allocator().dupe(u8, controllerName);
+        thirdArg[0] = std.ascii.toLower(thirdArg[0]);
+
+        // generated template's file name
+        const bufferControllerName = try arena.allocator().alloc(u8, controllerName.len);
+        const fileNameAsLowercase = std.ascii.lowerString(bufferControllerName, controllerName);
 
         var isSupportedMethod = false;
         for (FlagList.default_http_methods) |method| {
-            if (std.mem.eql(u8, method, methodUpper)) {
+            if (std.mem.eql(u8, method, secondArgAsMethodCapitalized)) {
                 isSupportedMethod = true;
                 break;
             }
@@ -226,9 +237,9 @@ const TemplateGenerator = struct {
 
         const raw = @embedFile("./templates/controller.kiwiwi");
         const rawPartial = @embedFile("./templates/controller.append.kiwiwi");
-        const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ controllerName, methodUpper, namedCopiedAsPrivate });
-        const templatePartial = try std.fmt.allocPrint(arena.allocator(), rawPartial, .{ controllerName, methodUpper, namedCopiedAsPrivate });
-        const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{namedCopiedAsPrivate});
+        const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ firstArg, secondArgAsMethodCapitalized, thirdArg });
+        const templatePartial = try std.fmt.allocPrint(arena.allocator(), rawPartial, .{ firstArg, secondArgAsMethodCapitalized, thirdArg });
+        const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{fileNameAsLowercase});
 
         std.debug.print("Generated controller template for {s}\n\n{s}\n\n", .{ fileName, template });
         try BoilerplateManager.write("controller", fileName, template, templatePartial);
@@ -248,12 +259,15 @@ const TemplateGenerator = struct {
         const secondArg = try arena.allocator().dupe(u8, serviceName);
         secondArg[0] = std.ascii.toLower(secondArg[0]);
 
+        const bufferServiceName = try arena.allocator().alloc(u8, serviceName.len);
+        const fileNameAsLowercase = std.ascii.lowerString(bufferServiceName, serviceName);
+
         const raw = @embedFile("./templates/service.kiwiwi");
         const rawPartial = @embedFile("./templates/service.append.kiwiwi");
 
         const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ firstArg, secondArg });
         const templatePartial = try std.fmt.allocPrint(arena.allocator(), rawPartial, .{ firstArg, secondArg });
-        const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{secondArg});
+        const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{fileNameAsLowercase});
 
         std.debug.print("Generated service template for {s}\n\n{s}\n\n", .{ fileName, template });
         try BoilerplateManager.write("service", fileName, template, templatePartial);

@@ -1,3 +1,4 @@
+
 func (s *{1s}Service) {0s}UpdateMe() error {{
 	return nil
 }}

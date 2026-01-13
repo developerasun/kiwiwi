@@ -6,13 +6,13 @@ import (
 )
 
 type {2s}Controller struct {{
-  {0s}Service I{0s}Service
+  {2s}Service I{0s}Service
 }}
-type New{0s}Controller interface {{
+type INew{0s}Controller interface {{
   RegisterRoute()
 }}
 
-func New{0s}Controller({0s}Service I{0s}Service) New{0s}Controller {{
+func New{0s}Controller({0s}Service I{0s}Service) INew{0s}Controller {{
 	return &{2s}Controller{{
 	   {2s}Service: {0s}Service,
 	}}
@@ -23,11 +23,10 @@ func (c *{2s}Controller) RegisterRoute(engine *gin.Engine) {{
 }}
 
 func (c *{2s}Controller) {0s}BindGroup(r *gin.Engine) {{
-  {0s}Routes := r.Group("/{0s}");
+  {0s}Routes := r.Group("/{0s}")
 
-  {0s}Routes.{1s}("/", c.{0s});
+  {0s}Routes.{1s}("/", c.{0s})
 }}
-
 
 // {0s} godoc
 // @Summary Lorem ipsum dolor sit amet
