@@ -9,6 +9,7 @@ const KiwiwiError = error{
     FlagKeyNotGiven,
     FlagValueNotGiven,
     FlagNotEnoughArguments,
+    FlagTooManyArguments,
     HttpMethodNotSupported,
     UndefinedBehavior,
 };
@@ -140,12 +141,17 @@ const TemplateGenerator = struct {
         }
 
         if (std.mem.eql(u8, flagKey, "service") or std.mem.eql(u8, flagKey, "s")) {
-            return UserInput{
-                .key = flagKey,
-                .value = flagValue,
-                .callback = CallbackType.service,
-                .httpMethod = null,
+            const tooManyArgs = args.next() orelse {
+                return UserInput{
+                    .key = flagKey,
+                    .value = flagValue,
+                    .callback = CallbackType.service,
+                    .httpMethod = null,
+                };
             };
+            if (tooManyArgs.len > 0) {
+                return KiwiwiError.FlagTooManyArguments;
+            }
         }
 
         return KiwiwiError.UndefinedBehavior;
