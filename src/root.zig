@@ -193,7 +193,7 @@ const TemplateGenerator = struct {
     }
 
     fn printAppVersion() void {
-        std.debug.print("Kiwiwi version 0.3.0\n", .{});
+        std.debug.print("Kiwiwi version 0.4.0\n", .{});
     }
 
     fn printAppSymbol() void {

@@ -5,11 +5,14 @@
 
 <div align="center">
 
-<img src="./docs/logo.png" width="150px" />
+<img src="./docs/logo.png" width="20%" />
 
 The missing scaffold tool for [`Gin`](https://github.com/gin-gonic/gin) web framework.
 
-![Static Badge](https://img.shields.io/badge/license-MIT-green)
+![Static Badge](https://img.shields.io/badge/release-v0.4.0-orange)
+![Static Badge](https://img.shields.io/badge/license-MIT-blue)
+
+<img src="./docs/demo.gif" width="75%" />
 
 </div>
 
@@ -57,7 +60,7 @@ do hello world.
 
 ```sh
 ./kiwiwi version
-Kiwiwi version 1.0.0
+Kiwiwi version 0.4.0
 ```
 
 check usage first.
