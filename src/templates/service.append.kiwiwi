@@ -1,0 +1,3 @@
+func (s *{0s}Service) {0s}UpdateMe() error {{
+	return nil
+}}

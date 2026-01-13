@@ -1,0 +1,15 @@
+// {0s} godoc
+// @Summary Lorem ipsum dolor sit amet
+// @Description Consectetur adipiscing elit. Integer ut maximus
+// @Tags api
+// @Produce json
+// @Success  200 {{object}}  dto.{0s}Response
+// @Failure   500  {{object}}  dto.{0s}ErrorResponse
+// @Router /api/{2s} [{1s}]
+func (c *{2s}Controller) {0s}_UpdateMe(ctx *gin.Context) {{
+	// Implementation goes here
+
+	ctx.JSON(http.StatusOK, dto.OkResponse{{
+		Message: "ok",
+	}})
+}}

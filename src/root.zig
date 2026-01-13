@@ -219,11 +219,13 @@ const TemplateGenerator = struct {
         }
 
         const raw = @embedFile("./templates/controller.kiwiwi");
+        const rawPartial = @embedFile("./templates/controller.append.kiwiwi");
         const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ controllerName, methodUpper, namedCopiedAsPrivate });
+        const templatePartial = try std.fmt.allocPrint(arena.allocator(), rawPartial, .{ controllerName, methodUpper, namedCopiedAsPrivate });
         const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{namedCopiedAsPrivate});
 
         std.debug.print("Generated controller template for {s}\n\n{s}\n\n", .{ fileName, template });
-        try BoilerplateManager.write("controller", fileName, template);
+        try BoilerplateManager.write("controller", fileName, template, templatePartial);
         return;
     }
 
@@ -235,13 +237,16 @@ const TemplateGenerator = struct {
         defer arena.deinit();
 
         const raw = @embedFile("./templates/service.kiwiwi");
+        const rawPartial = @embedFile("./templates/service.append.kiwiwi");
+
         const template = try std.fmt.allocPrint(arena.allocator(), raw, .{serviceName});
+        const templatePartial = try std.fmt.allocPrint(arena.allocator(), rawPartial, .{serviceName});
         var serviceNameCopied = try arena.allocator().dupe(u8, serviceName);
         serviceNameCopied[0] = std.ascii.toLower(serviceNameCopied[0]);
         const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{serviceNameCopied});
 
         std.debug.print("Generated service template for {s}\n\n{s}\n\n", .{ fileName, template });
-        try BoilerplateManager.write("service", fileName, template);
+        try BoilerplateManager.write("service", fileName, template, templatePartial);
         return;
     }
 };
@@ -251,7 +256,7 @@ const BoilerplateManager = struct {
         std.debug.print("{s}: no operation, ignoring\n\n", .{context});
     }
 
-    fn write(directoryName: []const u8, fileName: []const u8, template: []const u8) !void {
+    fn write(directoryName: []const u8, fileName: []const u8, template: []const u8, templatePartial: []const u8) !void {
         std.fs.cwd().makeDir(directoryName) catch |err| switch (err) {
             std.fs.Dir.MakeError.PathAlreadyExists => {
                 ignore("BoilerplateManager: write: PathAlreadyExists");
@@ -279,16 +284,13 @@ const BoilerplateManager = struct {
         const posBefore = try file.getPos();
         std.debug.print("check current cursor position: {d}.\n", .{posBefore});
 
-        const newFileContent = template;
-        const existingFileContent = "func myController() error { return nil }\n\n";
-
         if (is_empty) {
             std.debug.print("should create a new file\n", .{});
-            try file.writeAll(newFileContent);
+            try file.writeAll(template);
             try file.sync();
         } else {
             std.debug.print("appending data to existing file\n", .{});
-            try file.writeAll(existingFileContent);
+            try file.writeAll(templatePartial);
             try file.sync();
         }
 
