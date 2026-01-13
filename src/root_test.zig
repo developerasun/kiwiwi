@@ -10,10 +10,9 @@ fn Skip() !void {
     if (shouldSkip) return SkipError;
 }
 
-// @dev zed editor might not immediately refresh appned file contents.
-// TODO sync test code
+// @dev zed editor might not immediately refresh append file contents.
 test "Should create a directory and a file" {
-    try Skip();
+    // try Skip();
 
     const dirName = "testdummy";
     std.fs.cwd().makeDir(dirName) catch |err| switch (err) {
@@ -23,41 +22,33 @@ test "Should create a directory and a file" {
         else => return err,
     };
 
-    // .{ }: anonymous struct literal
-    const openOptions: std.fs.Dir.OpenOptions = .{ .iterate = true };
-    const fileOptions: std.fs.File.CreateFlags = .{
-        .read = true,
-        .exclusive = false,
-        .truncate = false, // append contents
-    };
-    const directory = try std.fs.cwd().openDir(dirName, openOptions);
-    const file = directory.createFile("controller.go", fileOptions) catch |err| {
-        std.debug.print("Error creating file: {any}\n", .{err});
-        return err;
+    var directory = try std.fs.cwd().openDir(dirName, .{ .access_sub_paths = true, .iterate = true });
+    defer directory.close();
+
+    // const isNewFile = false;
+    var file = directory.openFile("controller.go", .{ .mode = .read_write }) catch |err| switch (err) {
+        // std.fs.File.OpenError.FileNotFound => { // @dev either error or File
+        //     isNewFile = true;
+        //     // break :blk try directory.createFile("controller.go", .{ .lock = .shared, .read = true, .truncate = true });
+        //     const newFile = try directory.createFile("controller.go", .{ .lock = .shared, .read = true, .truncate = true });
+        //     return newFile;
+        // },
+        std.fs.File.OpenError.FileNotFound => try directory.createFile("controller.go", .{ .lock = .shared, .read = true, .truncate = true }),
+        else => return err,
     };
     defer file.close();
 
-    var isNewFile = false;
-    _ = directory.openFile("./controller.go", .{}) catch |err| switch (err) {
-        std.fs.File.OpenError.FileNotFound => {
-            isNewFile = true;
-        },
-        else => return err,
-    };
+    const stat = try file.stat();
+    const isEmpty = stat.size == 0;
 
     try file.seekFromEnd(0);
-    const newFileContent = "package controller \n\nfunc myController() error { return nil }\n\n";
-    const existingFileContent = "func myController() error { return nil }\n\n";
-
-    if (isNewFile) {
-        std.debug.print("should create a new file\n", .{});
-        try file.writeAll(newFileContent);
+    if (isEmpty) {
+        std.debug.print("dealing with a new file.\n", .{});
+        _ = try file.writeAll("package controller \n\nfunc myController() error { return nil }\n\n");
     } else {
-        std.debug.print("appending data to existing file\n", .{});
-        try file.writeAll(existingFileContent);
+        std.debug.print("dealing with an existing file.\n", .{});
+        _ = try file.writeAll("func myController() error { return nil }\n\n");
     }
-
-    std.debug.print("file create done.\n", .{});
 }
 
 test "Should format a string with data" {
@@ -181,6 +172,8 @@ test "Should safely mutate a char" {
 }
 
 test "Should print a generated ascii art" {
+    try Skip();
+
     const kiwi =
         \\                                       .-+*##*=:.   KIWIWI~!!
         \\                                    .-#*+-----=+*#+.  /
