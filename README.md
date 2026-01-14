@@ -5,14 +5,14 @@
 
 <div align="center">
 
-<img src="./docs/logo.png" width="20%" />
+<img src="./docs/logo.png" width="40%" />
 
 The missing scaffold tool for [`Gin`](https://github.com/gin-gonic/gin) web framework.
 
 ![Static Badge](https://img.shields.io/badge/release-v0.4.0-orange)
 ![Static Badge](https://img.shields.io/badge/license-MIT-blue)
 
-<img src="./docs/demo.gif" width="75%" />
+<img src="./docs/demo.gif" width="100%" />
 
 </div>
 
@@ -51,14 +51,14 @@ or, simply download prebuild binary from [release page](https://github.com/devel
 
 ## getting started
 
-do hello world.
+check version.
 
 ```sh
 ./kiwiwi version
 Kiwiwi version 0.4.0
 ```
 
-check usage first.
+check usage.
 
 ```sh
 ./kiwiwi help
@@ -69,9 +69,10 @@ Commands:
 
   NAME            | ALIAS | DESCRIPTION
   ----------------------------------------
-  help            | h     | Display help information
-  version         | v     | Display version information
-  controller      | co    | Generate a controller template
+  cry             | -     | Display symbol information
+  help            | -     | Display help information
+  version         | -     | Display version information
+  controller      | co    | Generate a controller template for a http method
   service         | s     | Generate a service template
 ```
 
@@ -118,7 +119,7 @@ zls version
 
 ### language server
 
-Depending on your editor, language server `zls` will be set slightly different. On zed, install `zig` extension first.
+Depending on your editor, language server `zls` will be set slightly different. On [zed](https://github.com/zed-industries/zed), install `zig` extension first.
 And create `.zed` directory with `settings.json` file.
 
 run `asdf which zls` command and copy the path for target language server.
@@ -195,3 +196,4 @@ run `./dev.run.sh --test`
 - [github: gin-scaffold](https://github.com/dcu/gin-scaffold)
 - [zed docs: language support: Go](https://zed.dev/docs/languages/go#go)
 - [github: nestjs/nest-cli](https://github.com/nestjs/nest-cli)
+- [github: developerasun/SignalDash](https://github.com/developerasun/SignalDash)
