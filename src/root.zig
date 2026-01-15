@@ -1,5 +1,6 @@
 //! By convention, root.zig is the root source file when making a library.
 const std = @import("std");
+const config = @import("config");
 pub const tests = @import("root_test.zig");
 
 const KiwiwiError = error{
@@ -193,7 +194,7 @@ const TemplateGenerator = struct {
     }
 
     fn printAppVersion() void {
-        std.debug.print("Kiwiwi version 0.4.0\n", .{});
+        std.debug.print("Kiwiwi version {s}\n", .{config.version});
     }
 
     fn printAppSymbol() void {

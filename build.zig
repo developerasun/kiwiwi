@@ -41,6 +41,11 @@ pub fn build(b: *std.Build) void {
         .target = target,
     });
 
+    const version = "v0.4.0";
+    const options = b.addOptions();
+    options.addOption([]const u8, "version", version);
+    mod.addOptions("config", options);
+
     // Here we define an executable. An executable needs to have a root module
     // which needs to expose a `main` function. While we could add a main function
     // to the module defined above, it's sometimes preferable to split business
