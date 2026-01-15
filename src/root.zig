@@ -198,7 +198,7 @@ const TemplateGenerator = struct {
     }
 
     fn printAppSymbol() void {
-        std.debug.print("\n{s}\n\n", .{AscilArtStore.kiwi});
+        std.debug.print("\n{s}\n\n", .{config.symbol});
     }
 
     fn generateController(controllerName: []const u8, httpMethod: []const u8) !void {
@@ -324,26 +324,6 @@ const BoilerplateManager = struct {
         std.debug.print("check current cursor position after write: {d}.\n", .{posAfter});
         std.debug.print("file create done.\n", .{});
     }
-};
-
-const AscilArtStore = struct {
-    const kiwi =
-        \\                                       .-+*##*=:.   KIWIWI~!!
-        \\                                    .-#*+-----=+*#+.  /
-        \\                                    +#=-----------=#%-
-        \\                                   *#=+#-------------+#%*:.
-        \\                                .=##*+*%=-*+------------=#*.
-        \\                              .*#-::::+%------------------#+
-        \\                              **=#%%%=--------------------+#
-        \\                              .::. .@=--------------------*+
-        \\                                    -%=------------------+#.
-        \\                                     :#*----------------*#:
-        \\                                       .*#*++==---==+*#*:
-        \\                                          .::--=%#=-**.
-        \\                                                :#: .*-
-        \\                                                :*-  -#.
-        \\                                               .=:. -*-.
-    ;
 };
 
 // @dev split test suites from implementation

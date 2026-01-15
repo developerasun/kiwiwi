@@ -44,6 +44,23 @@ pub fn build(b: *std.Build) void {
     const version = "v0.4.0";
     const options = b.addOptions();
     options.addOption([]const u8, "version", version);
+    options.addOption([]const u8, "symbol",
+        \\                                       .-+*##*=:.   KIWIWI~!!
+        \\                                    .-#*+-----=+*#+.  /
+        \\                                    +#=-----------=#%-
+        \\                                   *#=+#-------------+#%*:.
+        \\                                .=##*+*%=-*+------------=#*.
+        \\                              .*#-::::+%------------------#+
+        \\                              **=#%%%=--------------------+#
+        \\                              .::. .@=--------------------*+
+        \\                                    -%=------------------+#.
+        \\                                     :#*----------------*#:
+        \\                                       .*#*++==---==+*#*:
+        \\                                          .::--=%#=-**.
+        \\                                                :#: .*-
+        \\                                                :*-  -#.
+        \\                                               .=:. -*-.
+    );
     mod.addOptions("config", options);
 
     // Here we define an executable. An executable needs to have a root module
