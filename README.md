@@ -51,6 +51,18 @@ sudo chmod +x ./kiwiwi
 
 or, simply download prebuild binary from [release page](https://github.com/developerasun/kiwiwi/releases).
 
+configure the binary path in your shell.
+
+```sh
+mkdir ~/.kiwiwi
+mv ./kiwiwi ~/.kiwiwi
+
+nano ~/.bashrc
+export PATH="$PATH:$HOME/.kiwiwi"
+
+source ~/.bashrc
+```
+
 ## getting started
 
 `go.mod` file is required to run Kiwiwi. Project root is recommended.
