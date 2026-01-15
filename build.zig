@@ -42,7 +42,7 @@ pub fn build(b: *std.Build) void {
     });
 
     const options = b.addOptions();
-    options.addOption([]const u8, "version", "v0.4.0");
+    options.addOption([]const u8, "version", "v0.5.0");
     options.addOption([]const u8, "symbol",
         \\                                       .-+*##*=:.   KIWIWI~!!
         \\                                    .-#*+-----=+*#+.  /
