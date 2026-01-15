@@ -53,6 +53,18 @@ or, simply download prebuild binary from [release page](https://github.com/devel
 
 ## getting started
 
+`go.mod` file is required to run Kiwiwi. Project root is recommended.
+
+```sh
+./kiwiwi doctor
+
+# when found,
+[V] Safe to proceed to use Kiwiwi.
+
+# when not found,
+Failed to run with reason: EntrypointNotFound, terminating app.
+```
+
 check version.
 
 ```sh
@@ -74,6 +86,7 @@ Commands:
   cry             | -     | Display symbol information
   help            | -     | Display help information
   version         | -     | Display version information
+  doctor          | -     | Validate the project requirements
   controller      | co    | Generate a controller template for a http method
   service         | s     | Generate a service template
 ```
@@ -199,3 +212,4 @@ run `./dev.run.sh --test`
 - [zed docs: language support: Go](https://zed.dev/docs/languages/go#go)
 - [github: nestjs/nest-cli](https://github.com/nestjs/nest-cli)
 - [github: developerasun/SignalDash](https://github.com/developerasun/SignalDash)
+- [flutter: The Flutter command-line tool](https://docs.flutter.dev/reference/flutter-cli#flutter-commands)
