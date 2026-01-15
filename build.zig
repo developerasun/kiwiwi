@@ -41,9 +41,8 @@ pub fn build(b: *std.Build) void {
         .target = target,
     });
 
-    const version = "v0.4.0";
     const options = b.addOptions();
-    options.addOption([]const u8, "version", version);
+    options.addOption([]const u8, "version", "v0.4.0");
     options.addOption([]const u8, "symbol",
         \\                                       .-+*##*=:.   KIWIWI~!!
         \\                                    .-#*+-----=+*#+.  /

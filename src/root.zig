@@ -13,6 +13,9 @@ const KiwiwiError = error{
     FlagTooManyArguments,
     HttpMethodNotSupported,
     UndefinedBehavior,
+    EndOfDirectory,
+    ReachedHomeDirectory,
+    EntrypointNotFound,
 };
 
 // 1. parse cli args
@@ -25,6 +28,45 @@ pub fn Run() !void {
 
     return;
 }
+
+const Doctor = struct {
+    fn inspect() !void {
+        var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+        defer _ = gpa.deinit();
+        const base_allocator = gpa.allocator();
+        var arena = std.heap.ArenaAllocator.init(base_allocator);
+        defer arena.deinit();
+
+        const home = try std.process.getEnvVarOwned(arena.allocator(), "HOME");
+        var current_path = try std.fs.cwd().realpathAlloc(arena.allocator(), ".");
+        var directory = try std.fs.openDirAbsolute(current_path, .{});
+        defer directory.close();
+
+        while (true) {
+            const home_path = try arena.allocator().dupe(u8, home);
+            if (std.mem.eql(u8, home_path, current_path)) {
+                std.debug.print("Reached to home directory: {s}\n", .{home_path});
+                return KiwiwiError.EntrypointNotFound;
+            }
+
+            directory.access("go.mod", .{ .mode = .read_only }) catch |err| switch (err) {
+                error.FileNotFound => {
+                    std.debug.print("Go.mod not found in: {s}\n", .{current_path});
+                    const parent = std.fs.path.dirname(current_path) orelse {
+                        return KiwiwiError.EndOfDirectory;
+                    };
+                    directory = try directory.openDir(parent, .{});
+                    current_path = try arena.allocator().dupe(u8, parent);
+                    continue;
+                },
+                else => return err,
+            };
+
+            std.debug.print("Found go.mod in: {s}\n", .{current_path});
+            break;
+        }
+    }
+};
 
 const FlagType = struct {
     name: []const u8,
@@ -41,6 +83,7 @@ const FlagList = struct {
         .{ .name = "cry", .alias = "-", .description = "Display symbol information" },
         .{ .name = "help", .alias = "-", .description = "Display help information" },
         .{ .name = "version", .alias = "-", .description = "Display version information" },
+        .{ .name = "doctor", .alias = "-", .description = "Validate the project requirements" },
         .{ .name = "controller", .alias = "co", .description = "Generate a controller template for a http method" },
         .{ .name = "service", .alias = "s", .description = "Generate a service template" },
     };
@@ -75,6 +118,7 @@ const CallbackType = enum {
     cry,
     help,
     version,
+    doctor,
     controller,
     service,
 };
@@ -125,10 +169,21 @@ const TemplateGenerator = struct {
                     .httpMethod = null,
                 };
             }
+
+            if (std.mem.eql(u8, flagKey, "doctor")) {
+                return UserInput{
+                    .key = flagKey,
+                    .value = fallbackValue,
+                    .callback = CallbackType.doctor,
+                    .httpMethod = null,
+                };
+            }
             return KiwiwiError.FlagValueNotGiven;
         };
 
         if (std.mem.eql(u8, flagKey, "controller") or std.mem.eql(u8, flagKey, "co")) {
+            try Doctor.inspect();
+
             const httpMethod = args.next() orelse {
                 return KiwiwiError.FlagNotEnoughArguments;
             };
@@ -142,6 +197,8 @@ const TemplateGenerator = struct {
         }
 
         if (std.mem.eql(u8, flagKey, "service") or std.mem.eql(u8, flagKey, "s")) {
+            try Doctor.inspect();
+
             const tooManyArgs = args.next() orelse {
                 return UserInput{
                     .key = flagKey,
@@ -172,6 +229,10 @@ const TemplateGenerator = struct {
                 printAppVersion();
                 return;
             },
+            .doctor => {
+                try printAppDiagnosis();
+                return;
+            },
             .service => {
                 try generateService(value);
                 return;
@@ -199,6 +260,15 @@ const TemplateGenerator = struct {
 
     fn printAppSymbol() void {
         std.debug.print("\n{s}\n\n", .{config.symbol});
+    }
+
+    fn printAppDiagnosis() !void {
+        try Doctor.inspect();
+
+        const green = "\x1b[32m";
+        const orange = "\x1b[38;5;208m";
+        const reset = "\x1b[0m";
+        std.debug.print("\n{s}[V]{s} Safe to proceed to use {s}Kiwiwi{s}.\n", .{ green, reset, orange, reset });
     }
 
     fn generateController(controllerName: []const u8, httpMethod: []const u8) !void {
