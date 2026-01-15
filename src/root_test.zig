@@ -205,3 +205,39 @@ test "Should concat strings in comptime" {
     const result = str1 ++ " " ++ str2;
     std.debug.print("{s}\n", .{result});
 }
+
+test "Should find a go.mod file" {
+    // const parent = std.fs.path.dirname(path) orelse "ww";
+    // 1. set a start, end directory to search
+    // 2. check current directory for go.mod
+    // 3. if not found, move to parent directory
+    // 4. repeat until start directory is reached
+
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const base_allocator = gpa.allocator();
+    var arena = std.heap.ArenaAllocator.init(base_allocator);
+    defer arena.deinit();
+
+    var current_path = try std.fs.cwd().realpathAlloc(arena.allocator(), ".");
+    var directory = try std.fs.openDirAbsolute(current_path, .{});
+    defer directory.close();
+
+    while (true) {
+        directory.access("go.mod.txt", .{ .mode = .read_only }) catch |err| switch (err) {
+            error.FileNotFound => {
+                std.debug.print("Go.mod not found in: {s}\n", .{current_path});
+                const parent = std.fs.path.dirname(current_path) orelse {
+                    return error.EndOfDirectory;
+                };
+                directory = try directory.openDir(parent, .{});
+                current_path = try arena.allocator().dupe(u8, parent);
+                continue;
+            },
+            else => return err,
+        };
+
+        std.debug.print("Found go.mod in: {s}\n", .{current_path});
+        break;
+    }
+}
