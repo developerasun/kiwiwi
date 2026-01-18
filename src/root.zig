@@ -6,6 +6,7 @@ pub const tests = @import("root_test.zig");
 const KiwiwiError = error{
     InvalidTemplate,
     InvalidCallback,
+    InvalidGoMod,
     FlagNotSupported,
     FlagKeyNotGiven,
     FlagValueNotGiven,
@@ -290,6 +291,31 @@ const TemplateGenerator = struct {
         const thirdArg = try arena.allocator().dupe(u8, controllerName);
         thirdArg[0] = std.ascii.toLower(thirdArg[0]);
 
+        // parse go module name for service path
+        const current_path = try std.fs.cwd().realpathAlloc(arena.allocator(), ".");
+        var directory = try std.fs.openDirAbsolute(current_path, .{});
+        defer directory.close();
+
+        const sub_path = "go.mod";
+        var file = try directory.openFile(sub_path, .{ .mode = .read_only });
+        defer file.close();
+
+        const stat = try file.stat();
+        const buffer = try arena.allocator().alloc(u8, stat.size);
+        const content = try directory.readFile(sub_path, buffer);
+
+        var iterator = std.mem.tokenizeAny(u8, content, " \n\r\t");
+        var fourthArg: []const u8 = "github.com/kiwiwi";
+
+        while (iterator.next()) |token| {
+            if (std.mem.eql(u8, token, "module")) {
+                fourthArg = iterator.next() orelse {
+                    return KiwiwiError.InvalidGoMod;
+                };
+                break;
+            }
+        }
+
         // generated template's file name
         const bufferControllerName = try arena.allocator().alloc(u8, controllerName.len);
         const fileNameAsLowercase = std.ascii.lowerString(bufferControllerName, controllerName);
@@ -308,7 +334,7 @@ const TemplateGenerator = struct {
 
         const raw = @embedFile("./templates/controller.kiwiwi");
         const rawPartial = @embedFile("./templates/controller.append.kiwiwi");
-        const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ firstArg, secondArgAsMethodCapitalized, thirdArg });
+        const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ firstArg, secondArgAsMethodCapitalized, thirdArg, fourthArg });
         const templatePartial = try std.fmt.allocPrint(arena.allocator(), rawPartial, .{ firstArg, secondArgAsMethodCapitalized, thirdArg });
         const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{fileNameAsLowercase});
 
