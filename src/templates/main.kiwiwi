@@ -1,0 +1,25 @@
+package main
+
+import (
+  "log"
+  "net/http"
+
+  "github.com/gin-gonic/gin"
+  "github.com/{0s}/docs"
+  swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+)
+
+// @title kiwiwi template API
+// @version 0.1
+// @description kiwiwi template API documentation
+// @BasePath /
+func main() {
+  r := gin.Default()
+  r.SetTrustedProxies(nil)
+
+  docs.SwaggerInfo.BasePath = ""
+  r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+  r.Run() // http://localhost:8080
+  log.Println("main.go: router started")
+}
