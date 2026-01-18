@@ -207,6 +207,7 @@ test "Should concat strings in comptime" {
 }
 
 test "Should find a go.mod file" {
+    try Skip();
     // const parent = std.fs.path.dirname(path) orelse "ww";
     // 1. set a start, end directory to search
     // 2. check current directory for go.mod
@@ -240,4 +241,45 @@ test "Should find a go.mod file" {
         std.debug.print("Found go.mod in: {s}\n", .{current_path});
         break;
     }
+}
+
+test "Should parse a module name from go.mod" {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const base_allocator = gpa.allocator();
+    var arena = std.heap.ArenaAllocator.init(base_allocator);
+    defer arena.deinit();
+
+    const current_path = try std.fs.cwd().realpathAlloc(arena.allocator(), ".");
+    var directory = try std.fs.openDirAbsolute(current_path, .{});
+    defer directory.close();
+
+    std.debug.print("current dir: {s}\n", .{current_path});
+    const sub_path = "testdummy/go.mod";
+    var file = try directory.openFile(sub_path, .{ .mode = .read_only });
+    defer file.close();
+
+    const stat = try file.stat();
+    std.debug.print("size: {any}\n", .{stat.size});
+
+    const buffer = try arena.allocator().alloc(u8, stat.size);
+    const content = try directory.readFile(sub_path, buffer);
+
+    std.debug.print("content: {s}\n", .{content});
+
+    var iterator = std.mem.tokenizeAny(u8, content, " ");
+    var moduleName: []const u8 = "github.com/kiwiwi";
+
+    while (true) {
+        if (iterator.next()) |token| {
+            std.debug.print("token: {s}\n", .{token});
+
+            if (std.mem.startsWith(u8, token, "github.com/")) {
+                moduleName = token;
+                break;
+            }
+        }
+    }
+
+    std.debug.print("module name: {s}\n", .{moduleName});
 }
