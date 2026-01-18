@@ -76,13 +76,14 @@ test "Should print a templated controller" {
     const template = @embedFile("./templates/controller.kiwiwi");
     const templateType = @TypeOf(template);
     const templateTypeName = @typeName(templateType);
+    const moduleName = "github.com/kiwiwi";
 
     std.debug.print("template: {s}\n", .{template});
     std.debug.print("template type: {any}\n", .{templateType});
     std.debug.print("template type name: {s}\n", .{templateTypeName});
 
     const controllerName = "Health";
-    const controllerTemplate = try std.fmt.allocPrint(allocator, template, .{ controllerName, "GET", "get" });
+    const controllerTemplate = try std.fmt.allocPrint(allocator, template, .{ controllerName, "GET", "get", moduleName });
     defer allocator.free(controllerTemplate);
 
     std.debug.print("full template: {s}\n", .{controllerTemplate});
@@ -267,17 +268,17 @@ test "Should parse a module name from go.mod" {
 
     std.debug.print("content: {s}\n", .{content});
 
-    var iterator = std.mem.tokenizeAny(u8, content, " ");
+    var iterator = std.mem.tokenizeAny(u8, content, " \n\r\t");
     var moduleName: []const u8 = "github.com/kiwiwi";
 
-    while (true) {
-        if (iterator.next()) |token| {
-            std.debug.print("token: {s}\n", .{token});
+    while (iterator.next()) |token| {
+        std.debug.print("token: {s}\n", .{token});
 
-            if (std.mem.startsWith(u8, token, "github.com/")) {
-                moduleName = token;
-                break;
-            }
+        if (std.mem.eql(u8, token, "module")) {
+            moduleName = iterator.next() orelse {
+                return error.InvalidGoMod;
+            };
+            break;
         }
     }
 
