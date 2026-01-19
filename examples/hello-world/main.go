@@ -4,14 +4,24 @@ import (
 	"github.com/developerasun/kiwiwi/examples/hello-world/controller"
 	"github.com/developerasun/kiwiwi/examples/hello-world/service"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/dig"
 )
 
+func NewGin() *gin.Engine {
+	return gin.Default()
+}
+
 func main() {
-	r := gin.Default()
-	r.SetTrustedProxies(nil)
+	container := dig.New()
 
-	c := controller.NewGreetingsController(service.NewGreetingsService())
-	c.RegisterRoute(r)
+	container.Provide(NewGin)
+	container.Provide(service.NewGreetingsService)
+	container.Provide(controller.NewGreetingsController)
 
-	r.Run()
+	container.Invoke(func(r *gin.Engine, gc controller.INewGreetingsController) {
+		r.SetTrustedProxies(nil)
+		gc.RegisterRoute(r)
+
+		r.Run()
+	})
 }
