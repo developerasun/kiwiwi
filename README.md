@@ -11,7 +11,7 @@
 
 The missing scaffold tool for [`Gin`](https://github.com/gin-gonic/gin) web framework.
 
-![Static Badge](https://img.shields.io/badge/release-v0.4.0-orange)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/developerasun/kiwiwi)
 ![Static Badge](https://img.shields.io/badge/license-MIT-blue)
 
 <img src="./docs/demo.gif" width="100%" />
