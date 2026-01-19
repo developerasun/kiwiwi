@@ -225,3 +225,4 @@ run `./dev.run.sh --test`
 - [github: nestjs/nest-cli](https://github.com/nestjs/nest-cli)
 - [github: developerasun/SignalDash](https://github.com/developerasun/SignalDash)
 - [flutter: The Flutter command-line tool](https://docs.flutter.dev/reference/flutter-cli#flutter-commands)
+- [github: uber-go/dig](https://github.com/uber-go/dig)
