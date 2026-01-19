@@ -2,7 +2,10 @@ module github.com/developerasun/kiwiwi/examples/hello-world
 
 go 1.25.5
 
-require github.com/gin-gonic/gin v1.11.0
+require (
+	github.com/gin-gonic/gin v1.11.0
+	go.uber.org/dig v1.19.0
+)
 
 require (
 	github.com/bytedance/sonic v1.14.0 // indirect
