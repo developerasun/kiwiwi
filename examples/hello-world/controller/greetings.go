@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -37,8 +38,9 @@ func (c *greetingsController) RegisterRoute(engine *gin.Engine) {
 // @Router /api/greetings [GET]
 func (c *greetingsController) Greetings(ctx *gin.Context) {
 	// Implementation goes here
+	nationality := fmt.Sprintf("%s", c.greetingsService.Nationality())
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"message": "hello world",
+		"message": "hello from " + nationality,
 	})
 }
