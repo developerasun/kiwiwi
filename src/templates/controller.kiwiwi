@@ -11,21 +11,17 @@ type {2s}Controller struct {{
   {2s}Service service.I{0s}Service
 }}
 type INew{0s}Controller interface {{
-  RegisterRoute()
+  RegisterRoute(engine *gin.Engine)
 }}
 
-func New{0s}Controller({0s}Service service.I{0s}Service) INew{0s}Controller {{
+func New{0s}Controller({2s}Service service.I{0s}Service) INew{0s}Controller {{
 	return &{2s}Controller{{
-	   {2s}Service: {0s}Service,
+	   {2s}Service: {2s}Service,
 	}}
 }}
 
 func (c *{2s}Controller) RegisterRoute(engine *gin.Engine) {{
-	c.{0s}BindGroup(engine)
-}}
-
-func (c *{2s}Controller) {0s}BindGroup(r *gin.Engine) {{
-  {0s}Routes := r.Group("/{0s}")
+  {0s}Routes := engine.Group("/{2s}")
 
   {0s}Routes.{1s}("/", c.{0s})
 }}
@@ -41,7 +37,7 @@ func (c *{2s}Controller) {0s}BindGroup(r *gin.Engine) {{
 func (c *{2s}Controller) {0s}(ctx *gin.Context) {{
 	// Implementation goes here
 
-	ctx.JSON(http.StatusOK, dto.{0s}Response{{
-		Message: "ok",
+	ctx.JSON(http.StatusOK, gin.H{{
+		"message": "ok",
 	}})
 }}

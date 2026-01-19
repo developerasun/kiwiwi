@@ -4,10 +4,13 @@ import (
   "log"
   "net/http"
 
-  "github.com/gin-gonic/gin"
+  "github.com/{0s}/controller"
   "github.com/{0s}/docs"
+  "github.com/{0s}/service"
+  "github.com/gin-gonic/gin"
   swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/dig"
 )
 
 // @title kiwiwi template API
@@ -18,8 +21,10 @@ func main() {
   r := gin.Default()
   r.SetTrustedProxies(nil)
 
+  _ = dig.New()
+
   docs.SwaggerInfo.BasePath = ""
   r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-  r.Run() // http://localhost:8080
+  r.Run()
   log.Println("main.go: router started")
 }
