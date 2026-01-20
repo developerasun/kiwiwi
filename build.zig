@@ -41,8 +41,12 @@ pub fn build(b: *std.Build) void {
         .target = target,
     });
 
+    const version = b.run(&[_][]const u8{
+        "bash", "-c", "git tag | grep v | tail -n 1",
+    });
+
     const options = b.addOptions();
-    options.addOption([]const u8, "version", "v0.6.0");
+    options.addOption([]const u8, "version", version);
     options.addOption([]const u8, "symbol",
         \\                                       .-+*##*=:.   KIWIWI~!!
         \\                                    .-#*+-----=+*#+.  /
