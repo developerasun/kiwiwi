@@ -99,8 +99,15 @@ Commands:
   help            | -     | Display help information
   version         | -     | Display version information
   doctor          | -     | Validate the project requirements
+  new             | -     | Create a new project
   controller      | co    | Generate a controller template for a http method
   service         | s     | Generate a service template
+```
+
+create a `main.go`. 
+
+```sh
+./kiwiwi new
 ```
 
 create a controller.
