@@ -2,37 +2,38 @@ package main
 
 import (
   "log"
-  "net/http"
 
-  "github.com/{0s}/controller"
-  "github.com/{0s}/service"
+  // "github.com/{0s}/controller"
+  // "github.com/{0s}/service"
   "github.com/gin-gonic/gin"
 
 	"go.uber.org/dig"
-  docs "github.com/{0s}/docs"
-  swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+  // docs "github.com/{0s}/docs"
+  // swaggerfiles "github.com/swaggo/files"
+	// ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func NewGin() *gin.Engine {
+func NewGin() *gin.Engine {{
 	return gin.Default()
-}
+}}
 
 // @title kiwiwi template API
 // @version 0.1
 // @description kiwiwi template API documentation
 // @BasePath /
-func main() {
+func main() {{
   container := dig.New()
 	container.Provide(NewGin)
-	// add more depedencies here
 
-	container.Invoke(func(r *gin.Engine, gc controller.INewGreetingsController) {
+	// inject more depedencies here
+	// container.Provide(service.NewGreetingsService)
+	// container.Provide(controller.NewGreetingsController)
+
+	container.Invoke(func(r *gin.Engine) {{
 		r.SetTrustedProxies(nil)
-		docs.SwaggerInfo.BasePath = ""
-		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+		// docs.SwaggerInfo.BasePath = ""
+		// r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-		go r.Run()
-    log.Println("main.go: router started")
-	})
-}
+		log.Fatal(r.Run())
+	}})
+}}

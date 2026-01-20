@@ -67,6 +67,33 @@ const Doctor = struct {
             break;
         }
     }
+
+    fn findModuleName(arena: *std.heap.ArenaAllocator) ![]const u8 {
+        const current_path = try std.fs.cwd().realpathAlloc(arena.allocator(), ".");
+        var directory = try std.fs.openDirAbsolute(current_path, .{});
+        defer directory.close();
+
+        const sub_path = "go.mod";
+        var file = try directory.openFile(sub_path, .{ .mode = .read_only });
+        defer file.close();
+
+        const stat = try file.stat();
+        const buffer = try arena.allocator().alloc(u8, stat.size);
+        const content = try directory.readFile(sub_path, buffer);
+
+        var iterator = std.mem.tokenizeAny(u8, content, " \n\r\t");
+        var moduleName: []const u8 = "github.com/kiwiwi";
+
+        while (iterator.next()) |token| {
+            if (std.mem.eql(u8, token, "module")) {
+                moduleName = iterator.next() orelse {
+                    return KiwiwiError.InvalidGoMod;
+                };
+                break;
+            }
+        }
+        return moduleName;
+    }
 };
 
 const FlagType = struct {
@@ -85,6 +112,7 @@ const FlagList = struct {
         .{ .name = "help", .alias = "-", .description = "Display help information" },
         .{ .name = "version", .alias = "-", .description = "Display version information" },
         .{ .name = "doctor", .alias = "-", .description = "Validate the project requirements" },
+        .{ .name = "new", .alias = "-", .description = "Create a new project" },
         .{ .name = "controller", .alias = "co", .description = "Generate a controller template for a http method" },
         .{ .name = "service", .alias = "s", .description = "Generate a service template" },
     };
@@ -120,6 +148,7 @@ const CallbackType = enum {
     help,
     version,
     doctor,
+    new,
     controller,
     service,
 };
@@ -179,6 +208,15 @@ const TemplateGenerator = struct {
                     .httpMethod = null,
                 };
             }
+
+            if (std.mem.eql(u8, flagKey, "new")) {
+                return UserInput{
+                    .key = flagKey,
+                    .value = fallbackValue,
+                    .callback = CallbackType.new,
+                    .httpMethod = null,
+                };
+            }
             return KiwiwiError.FlagValueNotGiven;
         };
 
@@ -234,6 +272,10 @@ const TemplateGenerator = struct {
                 try printAppDiagnosis();
                 return;
             },
+            .new => {
+                try generateMain();
+                return;
+            },
             .service => {
                 try generateService(value);
                 return;
@@ -272,6 +314,34 @@ const TemplateGenerator = struct {
         std.debug.print("\n{s}[V]{s} Safe to proceed to use {s}Kiwiwi{s}.\n", .{ green, reset, orange, reset });
     }
 
+    fn generateMain() !void {
+        var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+        defer _ = gpa.deinit(); // @dev ensure no memory leaks
+        const baseAllocator = gpa.allocator();
+        var arena = std.heap.ArenaAllocator.init(baseAllocator);
+        defer arena.deinit();
+
+        const current_path = try std.fs.cwd().realpathAlloc(arena.allocator(), ".");
+        var directory = try std.fs.openDirAbsolute(current_path, .{});
+        defer directory.close();
+
+        const createFileOptions: std.fs.File.CreateFlags = .{
+            .exclusive = false,
+            .lock = .shared,
+            .read = true,
+            .truncate = false, // handle appending contents
+        };
+        var file = try directory.createFile("main.go", createFileOptions);
+        defer file.close();
+
+        const moduleName = try Doctor.findModuleName(&arena);
+        const raw = @embedFile("./templates/main.kiwiwi");
+        const template = try std.fmt.allocPrint(arena.allocator(), raw, .{moduleName});
+        try file.writeAll(template);
+
+        return;
+    }
+
     fn generateController(controllerName: []const u8, httpMethod: []const u8) !void {
         var gpa = std.heap.GeneralPurposeAllocator(.{}){};
         defer _ = gpa.deinit(); // @dev ensure no memory leaks
@@ -292,29 +362,9 @@ const TemplateGenerator = struct {
         thirdArg[0] = std.ascii.toLower(thirdArg[0]);
 
         // parse go module name for service path
-        const current_path = try std.fs.cwd().realpathAlloc(arena.allocator(), ".");
-        var directory = try std.fs.openDirAbsolute(current_path, .{});
-        defer directory.close();
+        const fourthArg = try Doctor.findModuleName(&arena);
 
-        const sub_path = "go.mod";
-        var file = try directory.openFile(sub_path, .{ .mode = .read_only });
-        defer file.close();
-
-        const stat = try file.stat();
-        const buffer = try arena.allocator().alloc(u8, stat.size);
-        const content = try directory.readFile(sub_path, buffer);
-
-        var iterator = std.mem.tokenizeAny(u8, content, " \n\r\t");
-        var fourthArg: []const u8 = "github.com/kiwiwi";
-
-        while (iterator.next()) |token| {
-            if (std.mem.eql(u8, token, "module")) {
-                fourthArg = iterator.next() orelse {
-                    return KiwiwiError.InvalidGoMod;
-                };
-                break;
-            }
-        }
+        // randomize method name when appended
         const appendNameArg = std.crypto.random.int(u16);
 
         // generated template's file name
