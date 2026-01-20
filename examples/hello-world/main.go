@@ -5,6 +5,10 @@ import (
 	"github.com/developerasun/kiwiwi/examples/hello-world/service"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/dig"
+
+	docs "github.com/developerasun/kiwiwi/examples/hello-world/docs"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func NewGin() *gin.Engine {
@@ -20,8 +24,10 @@ func main() {
 
 	container.Invoke(func(r *gin.Engine, gc controller.INewGreetingsController) {
 		r.SetTrustedProxies(nil)
-		gc.RegisterRoute(r)
+		docs.SwaggerInfo.BasePath = ""
+		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
+		gc.RegisterRoute(r)
 		r.Run()
 	})
 }
