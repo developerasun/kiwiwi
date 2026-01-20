@@ -3,12 +3,11 @@ package main
 import (
   "log"
 
-  // "github.com/{0s}/controller"
-  // "github.com/{0s}/service"
+  // "{0s}/controller"
+  // "{0s}/service"
   "github.com/gin-gonic/gin"
 
-	"go.uber.org/dig"
-  // docs "github.com/{0s}/docs"
+  // docs "{0s}/docs"
   // swaggerfiles "github.com/swaggo/files"
 	// ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -26,8 +25,8 @@ func main() {{
 	container.Provide(NewGin)
 
 	// inject more depedencies here
-	// container.Provide(service.NewGreetingsService)
-	// container.Provide(controller.NewGreetingsController)
+	// container.Provide(service.NewGreetingService)
+	// container.Provide(controller.NewGreetingController)
 
 	container.Invoke(func(r *gin.Engine) {{
 		r.SetTrustedProxies(nil)

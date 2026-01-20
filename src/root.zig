@@ -210,6 +210,8 @@ const TemplateGenerator = struct {
             }
 
             if (std.mem.eql(u8, flagKey, "new")) {
+                try Doctor.inspect();
+
                 return UserInput{
                     .key = flagKey,
                     .value = fallbackValue,
