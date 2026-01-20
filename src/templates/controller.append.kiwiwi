@@ -7,10 +7,10 @@
 // @Success  200 {{object}}  dto.{0s}Response
 // @Failure   500  {{object}}  dto.{0s}ErrorResponse
 // @Router /api/{2s} [{1s}]
-func (c *{2s}Controller) {0s}_UpdateMe(ctx *gin.Context) {{
+func (c *{2s}Controller) {0s}_UpdateMe{3d}(ctx *gin.Context) {{
 	// Implementation goes here
 
-	ctx.JSON(http.StatusOK, dto.OkResponse{{
-		Message: "ok",
+	ctx.JSON(http.StatusOK, gin.H{{
+		"message": "ok",
 	}})
 }}

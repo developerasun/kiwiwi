@@ -315,6 +315,7 @@ const TemplateGenerator = struct {
                 break;
             }
         }
+        const appendNameArg = std.crypto.random.int(u16);
 
         // generated template's file name
         const bufferControllerName = try arena.allocator().alloc(u8, controllerName.len);
@@ -335,7 +336,7 @@ const TemplateGenerator = struct {
         const raw = @embedFile("./templates/controller.kiwiwi");
         const rawPartial = @embedFile("./templates/controller.append.kiwiwi");
         const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ firstArg, secondArgAsMethodCapitalized, thirdArg, fourthArg });
-        const templatePartial = try std.fmt.allocPrint(arena.allocator(), rawPartial, .{ firstArg, secondArgAsMethodCapitalized, thirdArg });
+        const templatePartial = try std.fmt.allocPrint(arena.allocator(), rawPartial, .{ firstArg, secondArgAsMethodCapitalized, thirdArg, appendNameArg });
         const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{fileNameAsLowercase});
 
         std.debug.print("Generated controller template for {s}\n\n{s}\n\n", .{ fileName, template });
@@ -356,6 +357,8 @@ const TemplateGenerator = struct {
         const secondArg = try arena.allocator().dupe(u8, serviceName);
         secondArg[0] = std.ascii.toLower(secondArg[0]);
 
+        const appendNameArg = std.crypto.random.int(u16);
+
         const bufferServiceName = try arena.allocator().alloc(u8, serviceName.len);
         const fileNameAsLowercase = std.ascii.lowerString(bufferServiceName, serviceName);
 
@@ -363,7 +366,7 @@ const TemplateGenerator = struct {
         const rawPartial = @embedFile("./templates/service.append.kiwiwi");
 
         const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ firstArg, secondArg });
-        const templatePartial = try std.fmt.allocPrint(arena.allocator(), rawPartial, .{ firstArg, secondArg });
+        const templatePartial = try std.fmt.allocPrint(arena.allocator(), rawPartial, .{ firstArg, secondArg, appendNameArg });
         const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{fileNameAsLowercase});
 
         std.debug.print("Generated service template for {s}\n\n{s}\n\n", .{ fileName, template });

@@ -1,4 +1,4 @@
 
-func (s *{1s}Service) {0s}UpdateMe() error {{
+func (s *{1s}Service) {0s}_UpdateMe{2d}() error {{
 	return nil
 }}

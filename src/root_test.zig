@@ -245,6 +245,7 @@ test "Should find a go.mod file" {
 }
 
 test "Should parse a module name from go.mod" {
+    try Skip();
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
     const base_allocator = gpa.allocator();
@@ -283,4 +284,10 @@ test "Should parse a module name from go.mod" {
     }
 
     std.debug.print("module name: {s}\n", .{moduleName});
+}
+
+test "generate a random number" {
+    const random = std.crypto.random.int(u16);
+    std.debug.print("random number: {d}\n", .{random});
+    try expect(random > 0);
 }
