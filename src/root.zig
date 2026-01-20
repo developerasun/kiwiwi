@@ -341,6 +341,7 @@ const TemplateGenerator = struct {
         const template = try std.fmt.allocPrint(arena.allocator(), raw, .{moduleName});
         try file.writeAll(template);
 
+        std.debug.print("Generated main.go template\n\n", .{});
         return;
     }
 

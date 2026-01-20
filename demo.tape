@@ -10,11 +10,19 @@ Type "cd zig-out/bin && ./kiwiwi cry"
 Sleep 500ms
 Enter
 
-Type "./kiwiwi version"
+Type "./kiwiwi doctor"
 Sleep 500ms
 Enter
 
-Type "./kiwiwi co health get"
+Type "./kiwiwi new"
+Sleep 700ms
+Enter
+
+Type "./kiwiwi s greeting"
+Sleep 500ms
+Enter
+
+Type "./kiwiwi co greeting get"
 Sleep 500ms
 Enter
 
