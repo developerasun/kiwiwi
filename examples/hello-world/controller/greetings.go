@@ -23,7 +23,7 @@ func NewGreetingsController(greetingsService service.IGreetingsService) INewGree
 }
 
 func (c *greetingsController) RegisterRoute(engine *gin.Engine) {
-	GreetingsRoutes := engine.Group("/greetings")
+	GreetingsRoutes := engine.Group("/api/greetings")
 
 	GreetingsRoutes.GET("/", c.Greetings)
 }
@@ -33,8 +33,6 @@ func (c *greetingsController) RegisterRoute(engine *gin.Engine) {
 // @Description Consectetur adipiscing elit. Integer ut maximus
 // @Tags api
 // @Produce json
-// @Success  200 {object}  dto.GreetingsResponse
-// @Failure   500  {object}  dto.GreetingsErrorResponse
 // @Router /api/greetings [GET]
 func (c *greetingsController) Greetings(ctx *gin.Context) {
 	// Implementation goes here

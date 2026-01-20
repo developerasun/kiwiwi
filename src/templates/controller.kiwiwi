@@ -21,7 +21,7 @@ func New{0s}Controller({2s}Service service.I{0s}Service) INew{0s}Controller {{
 }}
 
 func (c *{2s}Controller) RegisterRoute(engine *gin.Engine) {{
-  {0s}Routes := engine.Group("/{2s}")
+  {0s}Routes := engine.Group("/api/{2s}")
 
   {0s}Routes.{1s}("/", c.{0s})
 }}
@@ -31,8 +31,8 @@ func (c *{2s}Controller) RegisterRoute(engine *gin.Engine) {{
 // @Description Consectetur adipiscing elit. Integer ut maximus
 // @Tags api
 // @Produce json
-// @Success  200 {{object}}  dto.{0s}Response
-// @Failure   500  {{object}}  dto.{0s}ErrorResponse
+// @Success  200 {{object}}  map[string]interface{{}}
+// @Failure   500  {{object}}  map[string]interface{{}}
 // @Router /api/{2s} [{1s}]
 func (c *{2s}Controller) {0s}(ctx *gin.Context) {{
 	// Implementation goes here

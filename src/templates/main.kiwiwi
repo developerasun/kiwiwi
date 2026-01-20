@@ -5,26 +5,34 @@ import (
   "net/http"
 
   "github.com/{0s}/controller"
-  "github.com/{0s}/docs"
   "github.com/{0s}/service"
   "github.com/gin-gonic/gin"
+
+	"go.uber.org/dig"
+  docs "github.com/{0s}/docs"
   swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"go.uber.org/dig"
 )
+
+func NewGin() *gin.Engine {
+	return gin.Default()
+}
 
 // @title kiwiwi template API
 // @version 0.1
 // @description kiwiwi template API documentation
 // @BasePath /
 func main() {
-  r := gin.Default()
-  r.SetTrustedProxies(nil)
+  container := dig.New()
+	container.Provide(NewGin)
+	// add more depedencies here
 
-  _ = dig.New()
+	container.Invoke(func(r *gin.Engine, gc controller.INewGreetingsController) {
+		r.SetTrustedProxies(nil)
+		docs.SwaggerInfo.BasePath = ""
+		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-  docs.SwaggerInfo.BasePath = ""
-  r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-  r.Run()
-  log.Println("main.go: router started")
+		go r.Run()
+    log.Println("main.go: router started")
+	})
 }
