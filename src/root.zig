@@ -403,7 +403,7 @@ const TemplateGenerator = struct {
         const reset = "\x1b[0m";
         std.debug.print("\n{s}[V]{s} {s} controller generated\n", .{ green, reset, fileName });
         try BoilerplateManager.write("controller", fileName, template, templatePartial);
-        try BoilerplateManager.write("dto", dtoName, templateDto, templatePartial);
+        try BoilerplateManager.write("dto", dtoName, templateDto, "");
         return;
     }
 
