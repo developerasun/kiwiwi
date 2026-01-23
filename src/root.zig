@@ -390,10 +390,16 @@ const TemplateGenerator = struct {
         const rawPartial = @embedFile("./templates/controller.append.kiwiwi");
         const template = try std.fmt.allocPrint(arena.allocator(), raw, .{ firstArg, secondArgAsMethodCapitalized, thirdArg, fourthArg });
         const templatePartial = try std.fmt.allocPrint(arena.allocator(), rawPartial, .{ firstArg, secondArgAsMethodCapitalized, thirdArg, appendNameArg });
+        const rawDto = @embedFile("./templates/dto.kiwiwi");
+        const templateDto = try std.fmt.allocPrint(arena.allocator(), rawDto, .{firstArg});
         const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{fileNameAsLowercase});
+        const dtoName = try std.fmt.allocPrint(arena.allocator(), "{s}_dto.go", .{fileNameAsLowercase});
 
-        std.debug.print("Generated controller template for {s}\n\n{s}\n\n", .{ fileName, template });
+        const green = "\x1b[32m";
+        const reset = "\x1b[0m";
+        std.debug.print("\n{s}[V]{s} {s} controller generated\n", .{ green, reset, fileName });
         try BoilerplateManager.write("controller", fileName, template, templatePartial);
+        try BoilerplateManager.write("dto", dtoName, templateDto, templatePartial);
         return;
     }
 
@@ -422,7 +428,9 @@ const TemplateGenerator = struct {
         const templatePartial = try std.fmt.allocPrint(arena.allocator(), rawPartial, .{ firstArg, secondArg, appendNameArg });
         const fileName = try std.fmt.allocPrint(arena.allocator(), "{s}.go", .{fileNameAsLowercase});
 
-        std.debug.print("Generated service template for {s}\n\n{s}\n\n", .{ fileName, template });
+        const green = "\x1b[32m";
+        const reset = "\x1b[0m";
+        std.debug.print("\n{s}[V]{s} {s} service generated\n", .{ green, reset, fileName });
         try BoilerplateManager.write("service", fileName, template, templatePartial);
         return;
     }

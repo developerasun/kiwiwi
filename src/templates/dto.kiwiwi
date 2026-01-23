@@ -2,21 +2,21 @@ package dto
 
 import "time"
 
-type OkResponse struct {{
+type {0s}OkResponse struct {{
 	Message string `json:"message"`
 }}
 
-type ErrorResponse struct {{
+type {0s}ErrorResponse struct {{
 	Message   string    `json:"message"`
 	Code        int       `json:"code"`
 	Timestamp time.Time `json:"timestamp"`
 	Path         string    `json:"path"`
 }}
 
-type {0s}Response struct {{
+type {0s}Request struct {{
 	Message string `json:"message"`
 }}
 
-type {0s}ErrorResponse struct {{
+type {0s}Response struct {{
 	Message string `json:"message"`
 }}
