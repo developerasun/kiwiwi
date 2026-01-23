@@ -11,7 +11,7 @@ type {2s}Controller struct {{
   {2s}Service service.I{0s}Service
 }}
 type INew{0s}Controller interface {{
-  RegisterRoute(engine *gin.Engine)
+  RegisterRoute(rg *gin.RouterGroup)
 }}
 
 func New{0s}Controller({2s}Service service.I{0s}Service) INew{0s}Controller {{
@@ -20,10 +20,10 @@ func New{0s}Controller({2s}Service service.I{0s}Service) INew{0s}Controller {{
 	}}
 }}
 
-func (c *{2s}Controller) RegisterRoute(engine *gin.Engine) {{
-  {0s}Routes := engine.Group("/api/{2s}")
+func (c *{2s}Controller) RegisterRoute(rg *gin.RouterGroup) {{
+  {2s}Routes := rg.Group("/{2s}")
 
-  {0s}Routes.{1s}("/", c.{0s})
+  {2s}Routes.{1s}("/", c.{0s})
 }}
 
 // {0s} godoc

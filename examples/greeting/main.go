@@ -30,10 +30,11 @@ func main() {
 
 	container.Invoke(func(r *gin.Engine, gc controller.INewGreetingController) {
 		r.SetTrustedProxies(nil)
+		rg := r.Group("/api")
 		// docs.SwaggerInfo.BasePath = ""
 		// r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-		gc.RegisterRoute(r)
+		gc.RegisterRoute(rg)
 		log.Fatal(r.Run())
 	})
 }

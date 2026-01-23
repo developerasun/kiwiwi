@@ -1,29 +1,30 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/developerasun/kiwiwi/examples/greeting/service"
 )
 
 type greetingController struct {
-  greetingService service.IGreetingService
+	greetingService service.IGreetingService
 }
 type INewGreetingController interface {
-  RegisterRoute(engine *gin.Engine)
+	RegisterRoute(rg *gin.RouterGroup)
 }
 
 func NewGreetingController(greetingService service.IGreetingService) INewGreetingController {
 	return &greetingController{
-	   greetingService: greetingService,
+		greetingService: greetingService,
 	}
 }
 
-func (c *greetingController) RegisterRoute(engine *gin.Engine) {
-  GreetingRoutes := engine.Group("/api/greeting")
+func (c *greetingController) RegisterRoute(rg *gin.RouterGroup) {
+	GreetingRoutes := rg.Group("/greeting")
 
-  GreetingRoutes.GET("/", c.Greeting)
+	GreetingRoutes.GET("/", c.Greeting)
 }
 
 // Greeting godoc
