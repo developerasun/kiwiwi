@@ -229,6 +229,10 @@ const TemplateGenerator = struct {
                 return KiwiwiError.FlagNotEnoughArguments;
             };
 
+            if (args.next()) |_| {
+                return KiwiwiError.FlagTooManyArguments;
+            }
+
             return UserInput{
                 .key = flagKey,
                 .value = flagValue,
