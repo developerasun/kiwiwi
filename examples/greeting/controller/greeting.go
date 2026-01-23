@@ -1,30 +1,30 @@
 package controller
 
 import (
+	"github.com/gin-gonic/gin"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-
 	"github.com/developerasun/kiwiwi/examples/greeting/service"
+	"github.com/developerasun/kiwiwi/examples/greeting/dto"
 )
 
 type greetingController struct {
-	greetingService service.IGreetingService
+  greetingService service.IGreetingService
 }
 type INewGreetingController interface {
-	RegisterRoute(rg *gin.RouterGroup)
+  RegisterRoute(rg *gin.RouterGroup)
 }
 
 func NewGreetingController(greetingService service.IGreetingService) INewGreetingController {
 	return &greetingController{
-		greetingService: greetingService,
+	   greetingService: greetingService,
 	}
 }
 
 func (c *greetingController) RegisterRoute(rg *gin.RouterGroup) {
-	GreetingRoutes := rg.Group("/greeting")
+  greetingRoutes := rg.Group("/greeting")
 
-	GreetingRoutes.GET("/", c.Greeting)
+  greetingRoutes.GET("/", c.Greeting)
 }
 
 // Greeting godoc
@@ -38,7 +38,23 @@ func (c *greetingController) RegisterRoute(rg *gin.RouterGroup) {
 func (c *greetingController) Greeting(ctx *gin.Context) {
 	// Implementation goes here
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "ok",
+	ctx.JSON(http.StatusOK, dto.GreetingResponse{
+		Message: "ok",
+	})
+}
+
+// Greeting godoc
+// @Summary Lorem ipsum dolor sit amet
+// @Description Consectetur adipiscing elit. Integer ut maximus
+// @Tags api
+// @Produce json
+// @Success  200 {object}  dto.GreetingResponse
+// @Failure   500  {object}  dto.GreetingErrorResponse
+// @Router /api/greeting [GET]
+func (c *greetingController) Greeting_UpdateMe19822(ctx *gin.Context) {
+	// Implementation goes here
+
+	ctx.JSON(http.StatusOK, dto.GreetingResponse{
+		Message: "ok",
 	})
 }
