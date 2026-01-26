@@ -1,5 +1,5 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/developerasun/kiwiwi)
-![Static Badge](https://img.shields.io/badge/Is_Jake_Working_On_This_Now-Yes-green)
+![Static Badge](https://img.shields.io/badge/Is_Jake_Working_On_This_Now-No-red)
 
 [![Coffee Chat](https://img.shields.io/badge/Coffee_Chat-795548?style=for-the-badge&logo=coffeescript&logoColor=white)](https://forms.gle/QrFAaXgbLnsxywhA7)
 
@@ -104,7 +104,7 @@ Commands:
   service         | s     | Generate a service template
 ```
 
-create a `main.go`. 
+create a `main.go`.
 
 ```sh
 ./kiwiwi new
